@@ -1,0 +1,145 @@
+﻿<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Eventos — CA ERP</title>
+  <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+<div class="layout">
+  <aside class="sidebar" id="sidebar"></aside>
+
+  <main class="main">
+    <header class="topbar">
+      <div class="topbar-left">
+        <h1>Eventos</h1>
+        <p>Planejamento e controle de eventos do CA</p>
+      </div>
+      <div class="topbar-right">
+        <button class="btn btn-primary" onclick="abrirModalEvento()">+ Novo Evento</button>
+      </div>
+    </header>
+
+    <div class="content">
+      <!-- Stats -->
+      <div class="cards-grid" id="event-stats"></div>
+
+      <!-- Filtros -->
+      <div class="table-card" style="margin-bottom:20px;">
+        <div style="padding:14px 20px;">
+          <div class="filters-row">
+            <div class="search-input-wrap" style="flex:1; min-width:180px;">
+              <input type="text" class="form-control" id="search-ev" placeholder="Buscar evento..." oninput="renderEventos()">
+            </div>
+            <select class="form-control" id="filter-status-ev" style="width:auto;" onchange="renderEventos()">
+              <option value="">Todos os status</option>
+              <option value="planejado">Planejado</option>
+              <option value="andamento">Em andamento</option>
+              <option value="concluido">Concluído</option>
+              <option value="cancelado">Cancelado</option>
+            </select>
+          </div>
+        </div>
+      </div>
+
+      <!-- Lista de eventos -->
+      <div id="eventos-container"></div>
+    </div>
+  </main>
+</div>
+
+<!-- Modal Evento -->
+<div class="modal-backdrop hidden" id="modal-evento">
+  <div class="modal modal-lg">
+    <div class="modal-header">
+      <h3 id="modal-ev-title">Novo Evento</h3>
+      <button class="modal-close" onclick="closeModal('modal-evento')">✕</button>
+    </div>
+    <div class="modal-body">
+      <input type="hidden" id="edit-ev-id">
+
+      <div class="form-group">
+        <label class="form-label">Título do evento <span>*</span></label>
+        <input type="text" class="form-control" id="ev-titulo" placeholder="Ex: Hackathon CA 2024">
+      </div>
+
+      <div class="form-row form-row-3">
+        <div class="form-group">
+          <label class="form-label">Data <span>*</span></label>
+          <input type="date" class="form-control" id="ev-data">
+        </div>
+        <div class="form-group">
+          <label class="form-label">Horário de início</label>
+          <input type="time" class="form-control" id="ev-hora-inicio">
+        </div>
+        <div class="form-group">
+          <label class="form-label">Horário de término</label>
+          <input type="time" class="form-control" id="ev-hora-fim">
+        </div>
+      </div>
+
+      <div class="form-row form-row-2">
+        <div class="form-group">
+          <label class="form-label">Local</label>
+          <input type="text" class="form-control" id="ev-local" placeholder="Ex: Sala 204, Bloco B">
+        </div>
+        <div class="form-group">
+          <label class="form-label">Responsável</label>
+          <input type="text" class="form-control" id="ev-responsavel" placeholder="Nome do responsável">
+        </div>
+      </div>
+
+      <div class="form-row form-row-2">
+        <div class="form-group">
+          <label class="form-label">Status</label>
+          <select class="form-control" id="ev-status">
+            <option value="planejado">📋 Planejado</option>
+            <option value="andamento">🔄 Em andamento</option>
+            <option value="concluido">✅ Concluído</option>
+            <option value="cancelado">❌ Cancelado</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label class="form-label">Público esperado</label>
+          <input type="number" class="form-control" id="ev-publico" placeholder="Nº de participantes" min="0">
+        </div>
+      </div>
+
+      <div class="form-group">
+        <label class="form-label">Descrição</label>
+        <textarea class="form-control" id="ev-descricao" rows="3" placeholder="Descreva o evento, objetivos, programação..."></textarea>
+      </div>
+
+      <div class="form-group">
+        <label class="form-label">Observação / Anotações internas</label>
+        <textarea class="form-control" id="ev-obs" rows="2" placeholder="Notas internas da organização..."></textarea>
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-outline" onclick="closeModal('modal-evento')">Cancelar</button>
+      <button class="btn btn-primary" onclick="salvarEvento()">Salvar Evento</button>
+    </div>
+  </div>
+</div>
+
+<!-- Modal Detalhe -->
+<div class="modal-backdrop hidden" id="modal-ev-detalhe">
+  <div class="modal modal-lg">
+    <div class="modal-header">
+      <h3 id="ev-detalhe-title">Evento</h3>
+      <button class="modal-close" onclick="closeModal('modal-ev-detalhe')">✕</button>
+    </div>
+    <div class="modal-body" id="ev-detalhe-body"></div>
+    <div class="modal-footer">
+      <button class="btn btn-danger btn-sm" id="btn-del-ev">🗑 Excluir</button>
+      <button class="btn btn-secondary btn-sm" id="btn-edit-ev">✏ Editar</button>
+      <button class="btn btn-outline" onclick="closeModal('modal-ev-detalhe')">Fechar</button>
+    </div>
+  </div>
+</div>
+
+<script src="js/app.js"></script>
+<script src="js/eventos.js"></script>
+</body>
+</html>

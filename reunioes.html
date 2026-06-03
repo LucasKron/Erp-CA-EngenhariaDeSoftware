@@ -1,0 +1,140 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Reuniões — CA ERP</title>
+  <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+<div class="layout">
+  <aside class="sidebar" id="sidebar"></aside>
+
+  <main class="main">
+    <header class="topbar">
+      <div class="topbar-left">
+        <h1>Reuniões</h1>
+        <p>Atas e registros das reuniões do CA</p>
+      </div>
+      <div class="topbar-right">
+        <button type="button" class="btn btn-primary" onclick="abrirModalReuniao()">+ Nova Reunião</button>
+      </div>
+    </header>
+
+    <div class="content">
+      <div class="table-card" style="margin-bottom:20px;">
+        <div style="padding:14px 20px;">
+          <div class="filters-row">
+            <div class="search-input-wrap" style="flex:1; min-width:180px;">
+              <input type="text" class="form-control" id="search-reu" placeholder="Buscar reunião..." oninput="renderReunioes()">
+            </div>
+            <select class="form-control" id="filter-tipo-reu" style="width:auto;" onchange="renderReunioes()">
+              <option value="">Todos os tipos</option>
+              <option value="ordinaria">Ordinária</option>
+              <option value="extraordinaria">Extraordinária</option>
+              <option value="planejamento">Planejamento</option>
+              <option value="outros">Outros</option>
+            </select>
+            <select class="form-control" id="filter-status-reu" style="width:auto;" onchange="renderReunioes()">
+              <option value="">Todos os status</option>
+              <option value="agendada">Agendada</option>
+              <option value="realizada">Realizada</option>
+              <option value="cancelada">Cancelada</option>
+            </select>
+          </div>
+        </div>
+      </div>
+
+      <div id="reunioes-container"></div>
+    </div>
+  </main>
+</div>
+
+<!-- Modal Nova/Editar Reunião -->
+<div class="modal-backdrop hidden" id="modal-reuniao">
+  <div class="modal modal-lg">
+    <div class="modal-header">
+      <h3 id="modal-reu-title">Nova Reunião</h3>
+      <button type="button" class="modal-close" onclick="closeModal('modal-reuniao')">✕</button>
+    </div>
+    <div class="modal-body">
+      <input type="hidden" id="edit-reu-id">
+      <div class="form-group">
+        <label class="form-label">Título / Pauta principal <span>*</span></label>
+        <input type="text" class="form-control" id="reu-titulo" placeholder="Ex: Reunião Ordinária - Abril 2024">
+      </div>
+      <div class="form-row form-row-3">
+        <div class="form-group">
+          <label class="form-label">Data <span>*</span></label>
+          <input type="date" class="form-control" id="reu-data">
+        </div>
+        <div class="form-group">
+          <label class="form-label">Horário</label>
+          <input type="time" class="form-control" id="reu-hora">
+        </div>
+        <div class="form-group">
+          <label class="form-label">Tipo</label>
+          <select class="form-control" id="reu-tipo">
+            <option value="ordinaria">Ordinária</option>
+            <option value="extraordinaria">Extraordinária</option>
+            <option value="planejamento">Planejamento</option>
+            <option value="outros">Outros</option>
+          </select>
+        </div>
+      </div>
+      <div class="form-row form-row-2">
+        <div class="form-group">
+          <label class="form-label">Local</label>
+          <input type="text" class="form-control" id="reu-local" placeholder="Ex: Sala do CA">
+        </div>
+        <div class="form-group">
+          <label class="form-label">Status</label>
+          <select class="form-control" id="reu-status">
+            <option value="agendada">Agendada</option>
+            <option value="realizada">Realizada</option>
+            <option value="cancelada">Cancelada</option>
+          </select>
+        </div>
+      </div>
+      <div class="form-group">
+        <label class="form-label">Participantes</label>
+        <input type="text" class="form-control" id="reu-participantes" placeholder="Ex: Maria Silva, João Santos, Ana Costa">
+        <div class="form-hint">Separe os nomes por vírgula</div>
+      </div>
+      <div class="form-group">
+        <label class="form-label">Pauta</label>
+        <textarea class="form-control" id="reu-pauta" rows="3" placeholder="1. Aprovação da ata anterior&#10;2. Prestação de contas&#10;3. Assuntos gerais"></textarea>
+      </div>
+      <div class="form-group">
+        <label class="form-label">Ata / Registro da reunião</label>
+        <textarea class="form-control" id="reu-ata" rows="6" placeholder="Registre o que foi discutido e decidido na reunião..."></textarea>
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button type="button" class="btn btn-outline" onclick="closeModal('modal-reuniao')">Cancelar</button>
+      <button type="button" class="btn btn-primary" onclick="salvarReuniao()">Salvar Reunião</button>
+    </div>
+  </div>
+</div>
+
+<!-- Modal Detalhe -->
+<div class="modal-backdrop hidden" id="modal-reu-detalhe">
+  <div class="modal modal-lg">
+    <div class="modal-header">
+      <h3 id="reu-detalhe-title">Reunião</h3>
+      <button type="button" class="modal-close" onclick="closeModal('modal-reu-detalhe')">✕</button>
+    </div>
+    <div class="modal-body" id="reu-detalhe-body"></div>
+    <div class="modal-footer">
+      <button type="button" class="btn btn-danger btn-sm" id="btn-del-reu">🗑 Excluir</button>
+      <button type="button" class="btn btn-secondary btn-sm" id="btn-edit-reu">✏ Editar</button>
+      <button type="button" class="btn btn-outline btn-sm" id="btn-print-reu">🖨 Imprimir Ata</button>
+      <button type="button" class="btn btn-outline" onclick="closeModal('modal-reu-detalhe')">Fechar</button>
+    </div>
+  </div>
+</div>
+
+<script src="js/app.js"></script>
+<script src="js/reunioes.js"></script>
+</body>
+</html>

@@ -1,0 +1,193 @@
+﻿<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Membros — CA ERP</title>
+  <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+<div class="layout">
+  <aside class="sidebar" id="sidebar"></aside>
+
+  <main class="main">
+    <header class="topbar">
+      <div class="topbar-left">
+        <h1>Membros</h1>
+        <p>Gestão dos membros do Centro Acadêmico</p>
+      </div>
+      <div class="topbar-right">
+        <button class="btn btn-primary" onclick="abrirModalMembro()">+ Novo Membro</button>
+      </div>
+    </header>
+
+    <div class="content">
+      <!-- Stats -->
+      <div class="cards-grid" id="member-stats" style="margin-bottom:24px;"></div>
+
+      <!-- Filtros -->
+      <div class="table-card" style="margin-bottom:20px;">
+        <div style="padding:14px 20px;">
+          <div class="filters-row">
+            <div class="search-input-wrap" style="flex:1; min-width:180px;">
+              <input type="text" class="form-control" id="search-mem" placeholder="Buscar membro..." oninput="renderMembros()">
+            </div>
+            <select class="form-control" id="filter-cargo" style="width:auto;" onchange="renderMembros()">
+              <option value="">Todos os cargos</option>
+              <option>Presidente</option>
+              <option>Vice-Presidente</option>
+              <option>Tesoureiro(a)</option>
+              <option>Secretário(a)</option>
+              <option>Diretor(a) de Eventos</option>
+              <option>Diretor(a) de Comunicação</option>
+              <option>Diretor(a) de Esportes</option>
+              <option>Diretor(a) de Cultura</option>
+              <option>Membro</option>
+            </select>
+            <select class="form-control" id="filter-status" style="width:auto;" onchange="renderMembros()">
+              <option value="">Todos</option>
+              <option value="1">Ativos</option>
+              <option value="0">Inativos</option>
+            </select>
+          </div>
+        </div>
+      </div>
+
+      <!-- Tabela -->
+      <div class="table-card">
+        <div class="table-card-header">
+          <h2>Lista de Membros</h2>
+          <span id="total-membros" style="font-size:13px; color:#A0AEC0;"></span>
+        </div>
+        <div class="table-scroll">
+          <table>
+            <thead>
+              <tr>
+                <th>Membro</th>
+                <th>Cargo</th>
+                <th>Período</th>
+                <th>Contato</th>
+                <th>Status</th>
+                <th>Desde</th>
+                <th style="text-align:center;">Ações</th>
+              </tr>
+            </thead>
+            <tbody id="tabela-membros"></tbody>
+          </table>
+        </div>
+        <div id="empty-membros" class="hidden">
+          <div class="empty-state">
+            <div class="empty-state-icon">👥</div>
+            <h3>Nenhum membro encontrado</h3>
+            <p>Adicione os membros do CA clicando em "Novo Membro".</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </main>
+</div>
+
+<!-- Modal Membro -->
+<div class="modal-backdrop hidden" id="modal-membro">
+  <div class="modal">
+    <div class="modal-header">
+      <h3 id="modal-mem-title">Novo Membro</h3>
+      <button class="modal-close" onclick="closeModal('modal-membro')">✕</button>
+    </div>
+    <div class="modal-body">
+      <input type="hidden" id="edit-mem-id">
+
+      <div class="form-group">
+        <label class="form-label">Nome completo <span>*</span></label>
+        <input type="text" class="form-control" id="mem-nome" placeholder="Nome do membro">
+      </div>
+
+      <div class="form-row form-row-2">
+        <div class="form-group">
+          <label class="form-label">Cargo <span>*</span></label>
+          <select class="form-control" id="mem-cargo">
+            <option value="">Selecionar...</option>
+            <option>Presidente</option>
+            <option>Vice-Presidente</option>
+            <option>Tesoureiro(a)</option>
+            <option>Secretário(a)</option>
+            <option>Diretor(a) de Eventos</option>
+            <option>Diretor(a) de Comunicação</option>
+            <option>Diretor(a) de Esportes</option>
+            <option>Diretor(a) de Cultura</option>
+            <option>Membro</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label class="form-label">Período</label>
+          <select class="form-control" id="mem-periodo">
+            <option value="">Selecionar...</option>
+            <option>1° período</option>
+            <option>2° período</option>
+            <option>3° período</option>
+            <option>4° período</option>
+            <option>5° período</option>
+            <option>6° período</option>
+            <option>7° período</option>
+            <option>8° período</option>
+          </select>
+        </div>
+      </div>
+
+      <div class="form-row form-row-2">
+        <div class="form-group">
+          <label class="form-label">E-mail</label>
+          <input type="email" class="form-control" id="mem-email" placeholder="email@pucpr.edu.br">
+        </div>
+        <div class="form-group">
+          <label class="form-label">Telefone/WhatsApp</label>
+          <input type="tel" class="form-control" id="mem-telefone" placeholder="(45) 99999-0000">
+        </div>
+      </div>
+
+      <div class="form-row form-row-2">
+        <div class="form-group">
+          <label class="form-label">Data de entrada</label>
+          <input type="date" class="form-control" id="mem-data">
+        </div>
+        <div class="form-group">
+          <label class="form-label">Status</label>
+          <select class="form-control" id="mem-ativo">
+            <option value="1">Ativo</option>
+            <option value="0">Inativo</option>
+          </select>
+        </div>
+      </div>
+
+      <div class="form-group">
+        <label class="form-label">Observação</label>
+        <textarea class="form-control" id="mem-obs" rows="2" placeholder="Informações adicionais..."></textarea>
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-outline" onclick="closeModal('modal-membro')">Cancelar</button>
+      <button class="btn btn-primary" onclick="salvarMembro()">Salvar</button>
+    </div>
+  </div>
+</div>
+
+<!-- Modal Detalhe -->
+<div class="modal-backdrop hidden" id="modal-mem-detalhe">
+  <div class="modal">
+    <div class="modal-header">
+      <h3>Perfil do Membro</h3>
+      <button class="modal-close" onclick="closeModal('modal-mem-detalhe')">✕</button>
+    </div>
+    <div class="modal-body" id="mem-detalhe-body"></div>
+    <div class="modal-footer">
+      <button class="btn btn-danger btn-sm" id="btn-del-mem">🗑 Excluir</button>
+      <button class="btn btn-secondary btn-sm" id="btn-edit-mem">✏ Editar</button>
+      <button class="btn btn-outline" onclick="closeModal('modal-mem-detalhe')">Fechar</button>
+    </div>
+  </div>
+</div>
+
+<script src="js/app.js"></script>
+<script src="js/membros.js"></script>
+</body>
+</html>

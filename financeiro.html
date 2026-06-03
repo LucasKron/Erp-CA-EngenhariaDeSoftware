@@ -1,0 +1,164 @@
+﻿<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Financeiro — CA ERP</title>
+  <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+<div class="layout">
+  <aside class="sidebar" id="sidebar"></aside>
+
+  <main class="main">
+    <header class="topbar">
+      <div class="topbar-left">
+        <h1>Financeiro</h1>
+        <p>Controle de receitas, despesas e saldo do CA</p>
+      </div>
+      <div class="topbar-right">
+        <button class="btn btn-success" onclick="abrirModal('receita')">+ Receita</button>
+        <button class="btn btn-danger" onclick="abrirModal('despesa')">− Despesa</button>
+      </div>
+    </header>
+
+    <div class="content">
+      <!-- Resumo -->
+      <div class="finance-summary" id="finance-summary"></div>
+
+      <!-- Filtros -->
+      <div class="table-card" style="margin-bottom:20px;">
+        <div style="padding:14px 20px;">
+          <div class="filters-row">
+            <div class="search-input-wrap" style="flex:1; min-width:180px;">
+              <input type="text" class="form-control" id="search-fin" placeholder="Buscar lançamento..." oninput="renderTransacoes()">
+            </div>
+            <select class="form-control" id="filter-tipo" style="width:auto;" onchange="renderTransacoes()">
+              <option value="">Todos os tipos</option>
+              <option value="receita">Receitas</option>
+              <option value="despesa">Despesas</option>
+            </select>
+            <select class="form-control" id="filter-cat" style="width:auto;" onchange="renderTransacoes()">
+              <option value="">Todas as categorias</option>
+              <option>Mensalidade</option>
+              <option>Venda</option>
+              <option>Apoio Institucional</option>
+              <option>Doação</option>
+              <option>Material</option>
+              <option>Alimentação</option>
+              <option>Transporte</option>
+              <option>Infraestrutura</option>
+              <option>Divulgação</option>
+              <option>Outros</option>
+            </select>
+            <input type="month" class="form-control" id="filter-mes" style="width:auto;" onchange="renderTransacoes()">
+          </div>
+        </div>
+      </div>
+
+      <!-- Tabela de lançamentos -->
+      <div class="table-card">
+        <div class="table-card-header">
+          <h2>Lançamentos</h2>
+          <span id="total-registros" style="font-size:13px; color:#A0AEC0;"></span>
+        </div>
+        <div class="table-scroll">
+          <table>
+            <thead>
+              <tr>
+                <th>Data</th>
+                <th>Descrição</th>
+                <th>Categoria</th>
+                <th>Tipo</th>
+                <th style="text-align:right;">Valor</th>
+                <th style="text-align:center;">Ações</th>
+              </tr>
+            </thead>
+            <tbody id="tabela-lancamentos"></tbody>
+          </table>
+        </div>
+        <div id="empty-fin" class="hidden">
+          <div class="empty-state">
+            <div class="empty-state-icon">💰</div>
+            <h3>Nenhum lançamento encontrado</h3>
+            <p>Registre receitas e despesas para controlar o financeiro do CA.</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </main>
+</div>
+
+<!-- Modal Lançamento -->
+<div class="modal-backdrop hidden" id="modal-lancamento">
+  <div class="modal">
+    <div class="modal-header">
+      <h3 id="modal-title">Novo Lançamento</h3>
+      <button class="modal-close" onclick="closeModal('modal-lancamento')">✕</button>
+    </div>
+    <div class="modal-body">
+      <input type="hidden" id="edit-id">
+      <input type="hidden" id="edit-tipo">
+
+      <div class="form-row form-row-2">
+        <div class="form-group">
+          <label class="form-label">Data <span>*</span></label>
+          <input type="date" class="form-control" id="lan-data">
+        </div>
+        <div class="form-group">
+          <label class="form-label">Valor (R$) <span>*</span></label>
+          <input type="number" class="form-control" id="lan-valor" placeholder="0,00" min="0" step="0.01">
+        </div>
+      </div>
+
+      <div class="form-group">
+        <label class="form-label">Descrição <span>*</span></label>
+        <input type="text" class="form-control" id="lan-descricao" placeholder="Descreva o lançamento...">
+      </div>
+
+      <div class="form-row form-row-2">
+        <div class="form-group">
+          <label class="form-label">Categoria <span>*</span></label>
+          <select class="form-control" id="lan-categoria">
+            <option value="">Selecionar...</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label class="form-label">Comprovante (opcional)</label>
+          <input type="file" class="form-control" id="lan-comprovante" accept=".pdf,.jpg,.jpeg,.png" style="padding:6px;">
+          <div class="form-hint">PDF ou imagem</div>
+        </div>
+      </div>
+
+      <div class="form-group">
+        <label class="form-label">Observação</label>
+        <textarea class="form-control" id="lan-obs" rows="2" placeholder="Informações adicionais..."></textarea>
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-outline" onclick="closeModal('modal-lancamento')">Cancelar</button>
+      <button class="btn btn-primary" onclick="salvarLancamento()" id="btn-salvar">Salvar</button>
+    </div>
+  </div>
+</div>
+
+<!-- Modal Detalhe -->
+<div class="modal-backdrop hidden" id="modal-detalhe">
+  <div class="modal">
+    <div class="modal-header">
+      <h3>Detalhe do Lançamento</h3>
+      <button class="modal-close" onclick="closeModal('modal-detalhe')">✕</button>
+    </div>
+    <div class="modal-body" id="detalhe-body"></div>
+    <div class="modal-footer">
+      <button class="btn btn-danger btn-sm" id="btn-delete-lan">🗑 Excluir</button>
+      <button class="btn btn-secondary btn-sm" id="btn-edit-lan">✏ Editar</button>
+      <button class="btn btn-outline" onclick="closeModal('modal-detalhe')">Fechar</button>
+    </div>
+  </div>
+</div>
+
+<script src="js/app.js"></script>
+<script src="js/financeiro.js"></script>
+</body>
+</html>
