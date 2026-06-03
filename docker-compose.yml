@@ -1,0 +1,71 @@
+# ===== CA ERP — Banco (PostgreSQL) + API (Express) + Adminer =====
+# Sobe o Postgres com schema e dados-semente, a API REST que conecta o
+# site ao banco, e o Adminer (interface web) para visualizar/editar.
+#
+#   docker compose up -d --build   -> sobe banco + api + adminer
+#   docker compose down            -> derruba os containers (dados ficam no volume)
+#   docker compose down -v         -> derruba e APAGA o volume (recria do zero)
+#
+# API:       http://localhost:3000/api
+# Adminer:   http://localhost:8080
+# Postgres:  localhost:5432  (use as credenciais do .env)
+
+services:
+  db:
+    image: postgres:16-alpine
+    container_name: ca_erp_db
+    restart: unless-stopped
+    environment:
+      POSTGRES_DB: ${POSTGRES_DB:-ca_erp}
+      POSTGRES_USER: ${POSTGRES_USER:-ca_erp}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-ca_erp_dev}
+    ports:
+      - "${POSTGRES_PORT:-5432}:5432"
+    volumes:
+      # Persiste os dados entre reinícios
+      - ca_erp_pgdata:/var/lib/postgresql/data
+      # Scripts rodam UMA vez, na primeira criação do banco (volume vazio)
+      - ./db/init:/docker-entrypoint-initdb.d:ro
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER:-ca_erp} -d ${POSTGRES_DB:-ca_erp}"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  api:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: ca_erp_api
+    restart: unless-stopped
+    environment:
+      PGHOST: db
+      PGPORT: 5432
+      PGDATABASE: ${POSTGRES_DB:-ca_erp}
+      PGUSER: ${POSTGRES_USER:-ca_erp}
+      PGPASSWORD: ${POSTGRES_PASSWORD:-ca_erp_dev}
+      PORT: 3000
+      AUTH_SECRET: ${AUTH_SECRET:-dev-secret-troque-em-producao}
+      PANEL_EMAILS: ${PANEL_EMAILS:-lucaskronbauer16@gmail.com,kainanneres262@gmail.com}
+    ports:
+      - "${API_PORT:-3000}:3000"
+    depends_on:
+      db:
+        condition: service_healthy
+
+  adminer:
+    image: adminer:latest
+    container_name: ca_erp_adminer
+    restart: unless-stopped
+    ports:
+      - "${ADMINER_PORT:-8080}:8080"
+    environment:
+      ADMINER_DEFAULT_SERVER: db
+      ADMINER_DESIGN: dracula
+    depends_on:
+      db:
+        condition: service_healthy
+
+volumes:
+  ca_erp_pgdata:
+    name: ca_erp_pgdata

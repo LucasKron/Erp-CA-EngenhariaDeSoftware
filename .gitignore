@@ -1,0 +1,7 @@
+# Variáveis de ambiente (contêm senhas — nunca versionar)
+.env
+
+# Logs / temporários
+*.log
+.DS_Store
+Thumbs.db

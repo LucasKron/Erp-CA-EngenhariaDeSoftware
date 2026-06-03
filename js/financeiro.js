@@ -156,5 +156,7 @@ function excluirLancamento(id) {
 
 // ===== INIT =====
 initSidebar('financeiro');
-renderResumo();
-renderTransacoes();
+bootstrapData(['financeiro']).then(() => {
+  renderResumo();
+  renderTransacoes();
+});

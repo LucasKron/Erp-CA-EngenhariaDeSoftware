@@ -66,31 +66,100 @@ function hydrateIcons(root) {
   });
 }
 
-// ===== STORAGE LAYER =====
-// All localStorage keys are prefixed with 'ca_erp_'
-// When connecting to backend: replace these functions with fetch() calls to your API
+// ===== CAMADA DE DADOS (API REST + cache em memória) =====
+// Os dados ficam no PostgreSQL, acessados pela API (pasta server/).
+// Base da API:
+//   - window.CA_API_BASE definido            -> usa esse host
+//   - rodando local (file://, localhost,      -> backend local em :3000
+//     127.0.0.1, qualquer porta tipo Live Server)
+//   - servido por um domínio real (produção)  -> mesma origem
+const _LOCAL_HOSTS = ['localhost', '127.0.0.1', ''];
+const API_ORIGIN = (window.CA_API_BASE != null)
+  ? window.CA_API_BASE
+  : ((location.protocol === 'file:' || _LOCAL_HOSTS.includes(location.hostname))
+      ? 'http://localhost:3000'
+      : '');
+const API_BASE = API_ORIGIN + '/api';
+
+const TOKEN_KEY = 'ca_erp_token';
+function authToken() { return localStorage.getItem(TOKEN_KEY) || ''; }
+function setToken(t) { localStorage.setItem(TOKEN_KEY, t); }
+function clearToken() { localStorage.removeItem(TOKEN_KEY); }
+
+function isLoginPage() { return /(^|\/)login\.html$/.test(location.pathname); }
+
+// Monta os cabeçalhos com o token de sessão (se houver).
+function authHeaders(extra) {
+  const h = Object.assign({}, extra || {});
+  const t = authToken();
+  if (t) h['Authorization'] = 'Bearer ' + t;
+  return h;
+}
+
+// Sessão expirada/ausente: limpa e manda pro login.
+function handleUnauthorized() {
+  clearToken();
+  if (!isLoginPage()) location.href = 'login.html';
+}
+
+function logout() {
+  clearToken();
+  location.href = 'login.html';
+}
+
+// Cache em memória, preenchido por bootstrapData() no início de cada página.
+// Mantém a interface síncrona que o resto do código já usava (storage.get/set).
+const _cache = {};
+
 const storage = {
+  // Leitura síncrona do cache (precisa ter rodado bootstrapData antes).
   get(key, defaultValue = []) {
-    try {
-      const val = localStorage.getItem(`ca_erp_${key}`);
-      return val ? JSON.parse(val) : defaultValue;
-    } catch {
-      return defaultValue;
-    }
+    return key in _cache ? _cache[key] : defaultValue;
   },
+  // Atualiza o cache na hora (UI responde rápido) e persiste a coleção
+  // inteira na API em segundo plano.
   set(key, value) {
-    try {
-      localStorage.setItem(`ca_erp_${key}`, JSON.stringify(value));
-    } catch (e) {
-      if (e.name === 'QuotaExceededError') {
-        showToast('Armazenamento local cheio. Alguns dados podem não ter sido salvos.', 'error');
-      }
-    }
+    _cache[key] = value;
+    fetch(`${API_BASE}/${key}`, {
+      method: 'PUT',
+      headers: authHeaders({ 'Content-Type': 'application/json' }),
+      body: JSON.stringify(value),
+    })
+      .then((res) => {
+        if (res.status === 401) { handleUnauthorized(); throw new Error('sessão expirada'); }
+        if (!res.ok) throw new Error('HTTP ' + res.status);
+      })
+      .catch((err) => {
+        console.error('Falha ao salvar no servidor:', err);
+        showToast('Erro ao salvar no servidor. Verifique sua conexão/login.', 'error');
+      });
   },
   remove(key) {
-    localStorage.removeItem(`ca_erp_${key}`);
-  }
+    delete _cache[key];
+  },
 };
+
+// Carrega do servidor as coleções necessárias para a página atual.
+// Resolve mesmo em caso de erro (a página renderiza vazia com aviso),
+// para nunca travar a interface.
+async function bootstrapData(keys) {
+  try {
+    await Promise.all(
+      keys.map(async (key) => {
+        const res = await fetch(`${API_BASE}/${key}`, { headers: authHeaders() });
+        if (res.status === 401) { handleUnauthorized(); throw new Error('sessão expirada'); }
+        if (!res.ok) throw new Error('HTTP ' + res.status);
+        _cache[key] = await res.json();
+      }),
+    );
+  } catch (err) {
+    keys.forEach((k) => { if (!(k in _cache)) _cache[k] = []; });
+    console.error('Falha ao carregar dados do servidor:', err);
+    if (!/sessão expirada/.test(err.message)) {
+      showToast('Não foi possível conectar ao servidor. Verifique se o backend está rodando.', 'error');
+    }
+  }
+}
 
 // ===== ID GENERATOR =====
 function generateId() {
@@ -216,64 +285,17 @@ function initSidebar(activePage) {
         </a>
       `).join('')}
     </nav>
-    <div class="sidebar-footer">PUC · TOLEDO — ERP v${APP_VERSION}</div>
+    <div class="sidebar-footer">
+      <a href="#" onclick="logout();return false" style="display:inline-flex;align-items:center;gap:6px;color:var(--text-3);text-decoration:none;font-size:12px;margin-bottom:10px">${svgIcon('close', 14)}Sair</a>
+      <div>PUC · TOLEDO — ERP v${APP_VERSION}</div>
+    </div>
   `;
 }
 
-// ===== SEED DATA (first run) =====
-function seedInitialData() {
-  if (storage.get('seeded', false)) return;
-
-  storage.set('membros', [
-    { id: generateId(), nome: 'Maria Silva', cargo: 'Presidente', email: 'maria@pucpr.edu.br', periodo: '5° período', telefone: '(45) 99901-0001', ativo: true, dataEntrada: '2024-03-01', observacao: '' },
-    { id: generateId(), nome: 'João Santos', cargo: 'Vice-Presidente', email: 'joao@pucpr.edu.br', periodo: '4° período', telefone: '(45) 99901-0002', ativo: true, dataEntrada: '2024-03-01', observacao: '' },
-    { id: generateId(), nome: 'Ana Costa', cargo: 'Tesoureira', email: 'ana@pucpr.edu.br', periodo: '5° período', telefone: '(45) 99901-0003', ativo: true, dataEntrada: '2024-03-01', observacao: '' },
-    { id: generateId(), nome: 'Lucas Mendes', cargo: 'Secretário', email: 'lucas@pucpr.edu.br', periodo: '3° período', telefone: '(45) 99901-0004', ativo: true, dataEntrada: '2024-03-01', observacao: '' },
-    { id: generateId(), nome: 'Beatriz Lima', cargo: 'Diretora de Eventos', email: 'beatriz@pucpr.edu.br', periodo: '4° período', telefone: '(45) 99901-0005', ativo: true, dataEntrada: '2024-03-01', observacao: '' },
-  ]);
-
-  storage.set('financeiro', [
-    { id: generateId(), tipo: 'receita', descricao: 'Mensalidade membros - Março/2024', valor: 250, categoria: 'Mensalidade', data: '2024-03-05', observacao: '' },
-    { id: generateId(), tipo: 'receita', descricao: 'Venda de canecas CA', valor: 180, categoria: 'Venda', data: '2024-03-12', observacao: '18 unidades x R$10' },
-    { id: generateId(), tipo: 'despesa', descricao: 'Impressão material para boas-vindas', valor: 94.50, categoria: 'Material', data: '2024-03-10', observacao: 'Gráfica Central' },
-    { id: generateId(), tipo: 'despesa', descricao: 'Lanche para reunião geral', valor: 67, categoria: 'Alimentação', data: '2024-03-18', observacao: '' },
-    { id: generateId(), tipo: 'receita', descricao: 'Apoio institucional PUC - Semestre 1', valor: 500, categoria: 'Apoio Institucional', data: '2024-03-20', observacao: '' },
-  ]);
-
-  storage.set('eventos', [
-    { id: generateId(), titulo: 'Semana de Boas-Vindas', data: '2024-03-25', horaInicio: '14:00', local: 'Hall Principal - Bloco A', descricao: 'Recepção aos calouros do curso de Engenharia de Software.', status: 'concluido', responsavel: 'Beatriz Lima', observacao: '' },
-    { id: generateId(), titulo: 'Hackathon CA 2024', data: '2024-04-20', horaInicio: '08:00', local: 'Lab de Informática 1 e 2', descricao: '24h de desenvolvimento de projetos sociais com tecnologia.', status: 'planejado', responsavel: 'João Santos', observacao: '' },
-    { id: generateId(), titulo: 'Workshop: Git e GitHub para Iniciantes', data: '2024-04-05', horaInicio: '19:00', local: 'Sala 204 - Bloco B', descricao: 'Workshop prático para alunos do 1° e 2° período.', status: 'planejado', responsavel: 'Lucas Mendes', observacao: '' },
-  ]);
-
-  storage.set('reunioes', [
-    {
-      id: generateId(),
-      titulo: 'Reunião Ordinária - Março 2024',
-      data: '2024-03-18',
-      hora: '19:30',
-      local: 'Sala do CA',
-      tipo: 'ordinaria',
-      participantes: 'Maria Silva, João Santos, Ana Costa, Lucas Mendes, Beatriz Lima',
-      pauta: '1. Aprovação da ata anterior\n2. Planejamento do Hackathon\n3. Prestação de contas\n4. Assuntos gerais',
-      ata: 'Reunião iniciada às 19h35 com quórum de 5 membros.\n\n1. Ata anterior aprovada por unanimidade.\n\n2. Hackathon: definida a data para 20/04. Beatriz ficou responsável pela divulgação.\n\n3. Saldo atual: R$ 768,50. Ana apresentou planilha de gastos.\n\n4. Proposta de criar grupo no WhatsApp para comunicação com alunos aprovada.',
-      status: 'realizada'
-    },
-  ]);
-
-  storage.set('tarefas', [
-    { id: generateId(), titulo: 'Divulgar Hackathon nas redes sociais', descricao: '', responsavel: 'Beatriz Lima', prazo: '2024-04-10', prioridade: 'alta', status: 'pendente', criadoEm: new Date().toISOString() },
-    { id: generateId(), titulo: 'Confirmar local para o Workshop de Git', descricao: 'Verificar disponibilidade da Sala 204', responsavel: 'Lucas Mendes', prazo: '2024-03-30', prioridade: 'media', status: 'pendente', criadoEm: new Date().toISOString() },
-    { id: generateId(), titulo: 'Atualizar lista de membros 2024', descricao: '', responsavel: 'Ana Costa', prazo: '2024-03-28', prioridade: 'baixa', status: 'concluida', criadoEm: new Date().toISOString() },
-  ]);
-
-  storage.set('documentos', [
-    { id: generateId(), nome: 'Estatuto do CA - 2024.pdf', categoria: 'Regulamento', descricao: 'Estatuto atualizado do Centro Acadêmico', tamanho: '245 KB', tipo: 'pdf', uploadEm: new Date().toISOString(), fileData: null },
-    { id: generateId(), nome: 'Ata Reunião Março 2024.docx', categoria: 'Ata', descricao: 'Ata da reunião ordinária de março', tamanho: '38 KB', tipo: 'docx', uploadEm: new Date().toISOString(), fileData: null },
-  ]);
-
-  storage.set('seeded', true);
-}
+// ===== DADOS-SEMENTE =====
+// Os dados iniciais agora vivem no banco (db/init/02_seed.sql), carregados
+// automaticamente na primeira criação do PostgreSQL. Não há mais seed no
+// front-end.
 
 // ===== FILE HELPERS =====
 function getFileIcon(tipo) {
@@ -292,5 +314,11 @@ function formatFileSize(bytes) {
 
 // ===== INIT =====
 // Scripts are at the bottom of <body> — DOM is ready, no DOMContentLoaded needed
-seedInitialData();
+
+// Gate de autenticação do painel: sem token de sessão, vai para o login
+// (exceto na própria página de login). Evita carregar a página sem estar logado.
+if (!authToken() && !isLoginPage()) {
+  location.href = 'login.html';
+}
+
 hydrateIcons(); // injeta SVG nos botões/ícones declarativos do HTML estático

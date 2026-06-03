@@ -220,4 +220,6 @@ function excluirReuniao(id) {
 // ===== INIT =====
 initSidebar('reunioes');
 document.getElementById('reu-data').value = todayISO();
-renderReunioes();
+bootstrapData(['reunioes']).then(function () {
+  renderReunioes();
+});

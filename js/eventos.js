@@ -146,5 +146,7 @@ function excluirEvento(id) {
 // ===== INIT =====
 initSidebar('eventos');
 document.getElementById('ev-data').value = todayISO();
-renderStats();
-renderEventos();
+bootstrapData(['eventos']).then(() => {
+  renderStats();
+  renderEventos();
+});

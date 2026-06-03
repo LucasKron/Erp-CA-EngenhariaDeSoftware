@@ -1,0 +1,35 @@
+# ============================================================
+#  Render Blueprint — Painel do CA (ERP): API + páginas + Postgres.
+#  No Render: New + > Blueprint > conecte este repositório.
+#  Cria automaticamente um banco Postgres e o serviço web.
+# ============================================================
+databases:
+  - name: ca-erp-db
+    plan: free
+    databaseName: ca_erp
+    user: ca_erp
+
+services:
+  - type: web
+    name: ca-erp-painel
+    runtime: docker
+    dockerfilePath: ./Dockerfile
+    plan: free
+    healthCheckPath: /api/health
+    envVars:
+      - key: PGHOST
+        fromDatabase: { name: ca-erp-db, property: host }
+      - key: PGPORT
+        fromDatabase: { name: ca-erp-db, property: port }
+      - key: PGDATABASE
+        fromDatabase: { name: ca-erp-db, property: database }
+      - key: PGUSER
+        fromDatabase: { name: ca-erp-db, property: user }
+      - key: PGPASSWORD
+        fromDatabase: { name: ca-erp-db, property: password }
+      # Segredo para assinar os tokens de login (gerado pelo Render).
+      - key: AUTH_SECRET
+        generateValue: true
+      # E-mails autorizados a acessar o painel (separados por vírgula).
+      - key: PANEL_EMAILS
+        value: lucaskronbauer16@gmail.com,kainanneres262@gmail.com

@@ -121,5 +121,7 @@ function excluirTarefa(id) {
 
 // ===== INIT =====
 initSidebar('tarefas');
-renderStats();
-renderTarefas();
+bootstrapData(['tarefas']).then(() => {
+  renderStats();
+  renderTarefas();
+});

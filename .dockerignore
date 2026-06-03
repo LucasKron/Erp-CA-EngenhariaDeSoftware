@@ -1,0 +1,12 @@
+.git
+node_modules
+**/node_modules
+.env
+*.log
+# App Angular de referência (não faz parte do painel servido)
+ca-erp
+# Scripts SQL de init local (a API cria o schema sozinha via server/schema.sql)
+db
+docker-compose.yml
+**/.DS_Store
+Thumbs.db

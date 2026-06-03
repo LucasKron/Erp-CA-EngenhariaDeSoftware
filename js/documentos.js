@@ -157,5 +157,7 @@ function deleteDoc(id) {
 // ===== INIT =====
 initSidebar('documentos');
 document.getElementById('doc-data').value = todayISO();
-renderDocs();
 setupDragDrop();
+bootstrapData(['documentos']).then(() => {
+  renderDocs();
+});

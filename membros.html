@@ -40,12 +40,14 @@
               <option value="">Todos os cargos</option>
               <option>Presidente</option>
               <option>Vice-Presidente</option>
-              <option>Tesoureiro(a)</option>
-              <option>Secretário(a)</option>
-              <option>Diretor(a) de Eventos</option>
-              <option>Diretor(a) de Comunicação</option>
-              <option>Diretor(a) de Esportes</option>
-              <option>Diretor(a) de Cultura</option>
+              <option>Tesoureiro</option>
+              <option>Secretário</option>
+              <option>Secretário Adjunto</option>
+              <option>Diretor de Eventos</option>
+              <option>Diretor de Comunicação</option>
+              <option>1° Suplente</option>
+              <option>2° Suplente</option>
+              <option>3° Suplente</option>
               <option>Membro</option>
             </select>
             <select class="form-control" id="filter-status" style="width:auto;" onchange="renderMembros()">
@@ -100,6 +102,18 @@
     </div>
     <div class="modal-body">
       <input type="hidden" id="edit-mem-id">
+      <input type="hidden" id="mem-foto">
+
+      <div class="form-group">
+        <label class="form-label">Foto <span style="font-weight:400;color:var(--text-3)">(aparece no site público)</span></label>
+        <div style="display:flex;align-items:center;gap:14px">
+          <div id="mem-foto-preview" class="member-avatar" style="width:56px;height:56px;font-size:19px;overflow:hidden;background-size:cover;background-position:center">—</div>
+          <div style="flex:1;min-width:0">
+            <input type="file" class="form-control" id="mem-foto-input" accept="image/*" onchange="onMemFotoSelected(this)">
+            <button type="button" class="btn btn-outline btn-sm" style="margin-top:8px" onclick="limparMemFoto()" data-icon="trash" data-icon-size="13">Remover foto</button>
+          </div>
+        </div>
+      </div>
 
       <div class="form-group">
         <label class="form-label">Nome completo <span>*</span></label>
@@ -113,12 +127,14 @@
             <option value="">Selecionar...</option>
             <option>Presidente</option>
             <option>Vice-Presidente</option>
-            <option>Tesoureiro(a)</option>
-            <option>Secretário(a)</option>
-            <option>Diretor(a) de Eventos</option>
-            <option>Diretor(a) de Comunicação</option>
-            <option>Diretor(a) de Esportes</option>
-            <option>Diretor(a) de Cultura</option>
+            <option>Tesoureiro</option>
+            <option>Secretário</option>
+            <option>Secretário Adjunto</option>
+            <option>Diretor de Eventos</option>
+            <option>Diretor de Comunicação</option>
+            <option>1° Suplente</option>
+            <option>2° Suplente</option>
+            <option>3° Suplente</option>
             <option>Membro</option>
           </select>
         </div>

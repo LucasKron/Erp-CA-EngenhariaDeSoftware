@@ -1,12 +1,64 @@
 const CARGO_CORES = {
   'Presidente': 'badge-purple', 'Vice-Presidente': 'badge-blue',
-  'Tesoureiro(a)': 'badge-green', 'Secretário(a)': 'badge-teal',
-  'Diretor(a) de Eventos': 'badge-yellow', 'Diretor(a) de Comunicação': 'badge-orange',
+  'Tesoureiro': 'badge-green', 'Secretário': 'badge-teal', 'Secretário Adjunto': 'badge-teal',
+  'Diretor de Eventos': 'badge-yellow', 'Diretor de Comunicação': 'badge-orange',
+  '1° Suplente': 'badge-gray', '2° Suplente': 'badge-gray', '3° Suplente': 'badge-gray',
   'Membro': 'badge-gray'
 };
 
 function getInitials(nome) {
   return nome.split(' ').slice(0, 2).map(n => (n[0] || '').toUpperCase()).join('');
+}
+
+// Avatar para tabela/listas: foto se houver, senão iniciais.
+function avatarMarkup(m) {
+  if (m.foto) {
+    return '<div class="member-avatar" style="overflow:hidden;color:transparent;background-image:url(\'' + m.foto + '\');background-size:cover;background-position:center"></div>';
+  }
+  return '<div class="member-avatar">' + getInitials(m.nome) + '</div>';
+}
+
+// ===== FOTO DO MEMBRO (upload + redução via canvas) =====
+function onMemFotoSelected(input) {
+  const file = input.files && input.files[0];
+  if (!file) return;
+  const reader = new FileReader();
+  reader.onload = e => {
+    const img = new Image();
+    img.onload = () => {
+      const max = 480; // reduz pra não inflar o banco (whole-collection PUT)
+      let w = img.width, h = img.height;
+      if (w > h && w > max) { h = Math.round(h * max / w); w = max; }
+      else if (h > max) { w = Math.round(w * max / h); h = max; }
+      const canvas = document.createElement('canvas');
+      canvas.width = w; canvas.height = h;
+      canvas.getContext('2d').drawImage(img, 0, 0, w, h);
+      const dataUrl = canvas.toDataURL('image/jpeg', 0.82);
+      document.getElementById('mem-foto').value = dataUrl;
+      setMemFotoPreview(dataUrl);
+    };
+    img.src = e.target.result;
+  };
+  reader.readAsDataURL(file);
+}
+
+function limparMemFoto() {
+  document.getElementById('mem-foto').value = '';
+  document.getElementById('mem-foto-input').value = '';
+  setMemFotoPreview('');
+}
+
+function setMemFotoPreview(dataUrl) {
+  const el = document.getElementById('mem-foto-preview');
+  if (!el) return;
+  if (dataUrl) {
+    el.style.backgroundImage = "url('" + dataUrl + "')";
+    el.textContent = '';
+  } else {
+    el.style.backgroundImage = 'none';
+    const nome = document.getElementById('mem-nome').value.trim();
+    el.textContent = nome ? getInitials(nome) : '—';
+  }
 }
 
 function renderStats() {
@@ -39,7 +91,7 @@ function renderMembros() {
     const badge = CARGO_CORES[m.cargo] || 'badge-gray';
     const statusBadge = m.ativo ? 'badge-green' : 'badge-gray';
     return '<tr style="cursor:pointer" onclick="verMembro(\'' + m.id + '\')">' +
-      '<td><div style="display:flex;align-items:center;gap:11px"><div class="member-avatar">' + getInitials(m.nome) + '</div>' +
+      '<td><div style="display:flex;align-items:center;gap:11px">' + avatarMarkup(m) +
       '<div><div style="font-weight:600;color:var(--text)">' + m.nome + '</div>' + (m.email ? '<div style="font-size:12px;color:var(--text-3)">' + m.email + '</div>' : '') + '</div></div></td>' +
       '<td><span class="badge ' + badge + '">' + (m.cargo || '—') + '</span></td>' +
       '<td>' + (m.periodo || '—') + '</td>' +
@@ -65,6 +117,9 @@ function abrirModalMembro(id) {
   document.getElementById('mem-data').value = m ? (m.dataEntrada || todayISO()) : todayISO();
   document.getElementById('mem-ativo').value = m ? (m.ativo ? '1' : '0') : '1';
   document.getElementById('mem-obs').value = m ? (m.observacao || '') : '';
+  document.getElementById('mem-foto').value = m && m.foto ? m.foto : '';
+  document.getElementById('mem-foto-input').value = '';
+  setMemFotoPreview(m && m.foto ? m.foto : '');
   openModal('modal-membro');
 }
 
@@ -83,7 +138,8 @@ function salvarMembro() {
     telefone: document.getElementById('mem-telefone').value.trim(),
     dataEntrada: document.getElementById('mem-data').value,
     ativo: document.getElementById('mem-ativo').value === '1',
-    observacao: document.getElementById('mem-obs').value.trim()
+    observacao: document.getElementById('mem-obs').value.trim(),
+    foto: document.getElementById('mem-foto').value || null
   };
   if (editId) membros = membros.map(m => m.id === editId ? obj : m);
   else membros.push(obj);
@@ -101,7 +157,9 @@ function verMembro(id) {
   const statusBadge = m.ativo ? 'badge-green' : 'badge-gray';
 
   let body = '<div style="display:flex;align-items:center;gap:16px;margin-bottom:20px">';
-  body += '<div class="member-avatar" style="width:56px;height:56px;font-size:20px">' + getInitials(m.nome) + '</div>';
+  body += m.foto
+    ? '<div class="member-avatar" style="width:56px;height:56px;overflow:hidden;color:transparent;background-image:url(\'' + m.foto + '\');background-size:cover;background-position:center"></div>'
+    : '<div class="member-avatar" style="width:56px;height:56px;font-size:20px">' + getInitials(m.nome) + '</div>';
   body += '<div><div style="font-family:var(--font-display);font-size:20px;font-weight:600;color:var(--text)">' + m.nome + '</div>';
   body += '<span class="badge ' + badge + '" style="margin-top:4px">' + (m.cargo || 'Sem cargo') + '</span>';
   body += '<span class="badge ' + statusBadge + '" style="margin-left:6px">' + (m.ativo ? 'Ativo' : 'Inativo') + '</span></div></div>';
@@ -129,5 +187,7 @@ function excluirMembro(id) {
 // ===== INIT =====
 initSidebar('membros');
 document.getElementById('mem-data').value = todayISO();
-renderStats();
-renderMembros();
+bootstrapData(['membros']).then(() => {
+  renderStats();
+  renderMembros();
+});

@@ -114,8 +114,10 @@ var h = now.getHours();
 var greeting = h < 12 ? 'Bom dia' : h < 18 ? 'Boa tarde' : 'Boa noite';
 document.getElementById('topbar-date').textContent = now.toLocaleDateString('pt-BR', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' });
 document.getElementById('topbar-greeting').textContent = greeting;
-renderStats();
-renderUpcomingEvents();
-renderPendingTasks();
-renderFinanceSummary();
-renderQuickActions();
+renderQuickActions(); // não depende de dados
+bootstrapData(['membros', 'documentos', 'eventos', 'tarefas', 'financeiro']).then(() => {
+  renderStats();
+  renderUpcomingEvents();
+  renderPendingTasks();
+  renderFinanceSummary();
+});
