@@ -32,7 +32,7 @@ function renderReunioes() {
   if (!container) return;
 
   if (!reunioes.length) {
-    container.innerHTML = '<div class="empty-state"><div class="empty-state-icon">📝</div><h3>Nenhuma reunião encontrada</h3><p>Registre as reuniões do CA para manter o histórico de decisões.</p><button type="button" class="btn btn-primary" onclick="abrirModalReuniao()">+ Nova Reunião</button></div>';
+    container.innerHTML = '<div class="empty-state"><div class="empty-state-icon">' + svgIcon('meetings', 40) + '</div><h3>Nenhuma reunião encontrada</h3><p>Registre as reuniões do CA para manter o histórico de decisões.</p><button type="button" class="btn btn-primary" onclick="abrirModalReuniao()">' + svgIcon('plus', 15) + 'Nova Reunião</button></div>';
     return;
   }
 
@@ -44,22 +44,22 @@ function renderReunioes() {
     var d = new Date(r.data + 'T12:00:00');
     var dataFmt = d.toLocaleDateString('pt-BR', { weekday: 'short', day: '2-digit', month: 'long', year: 'numeric' });
 
-    var metaHtml = '<span>📅 ' + dataFmt + (r.hora ? ' às ' + r.hora : '') + '</span>';
-    if (r.local) metaHtml += ' <span>📍 ' + r.local + '</span>';
-    if (r.participantes) metaHtml += ' <span>👥 ' + r.participantes.split(',').length + ' participante(s)</span>';
+    var metaHtml = '<span>' + dataFmt + (r.hora ? ' · ' + r.hora : '') + '</span>';
+    if (r.local) metaHtml += '<span>' + r.local + '</span>';
+    if (r.participantes) metaHtml += '<span>' + r.participantes.split(',').length + ' participante(s)</span>';
 
     var pautaHtml = '';
     if (r.pauta) {
       var pt = r.pauta.length > 200 ? r.pauta.slice(0, 200) + '…' : r.pauta;
-      pautaHtml = '<div style="margin-bottom:8px"><div style="font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.8px;color:#A0AEC0;margin-bottom:4px">PAUTA</div><div style="font-size:13px;color:#4A5568;white-space:pre-wrap;line-height:1.5">' + pt + '</div></div>';
+      pautaHtml = '<div><div class="meeting-section-label">Pauta</div><div class="meeting-pauta">' + pt + '</div></div>';
     }
 
     var ataHtml = '';
     if (r.ata) {
       var at = r.ata.length > 300 ? r.ata.slice(0, 300) + '…' : r.ata;
-      ataHtml = '<div><div style="font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.8px;color:#A0AEC0;margin-bottom:4px">ATA</div><div class="meeting-ata">' + at + '</div></div>';
+      ataHtml = '<div><div class="meeting-section-label">Ata</div><div class="meeting-ata">' + at + '</div></div>';
     } else if (r.status === 'realizada') {
-      ataHtml = '<div style="font-size:13px;color:#A0AEC0;font-style:italic">Ata não registrada.</div>';
+      ataHtml = '<div style="font-size:13px;color:var(--text-3);font-style:italic">Ata não registrada.</div>';
     }
 
     html += '<div class="meeting-card" onclick="verReuniao(\'' + r.id + '\')" style="cursor:pointer">';
@@ -69,8 +69,8 @@ function renderReunioes() {
     html += '<div style="display:flex;gap:6px;align-items:center;flex-shrink:0">';
     html += '<span class="badge ' + tipo.badge + '">' + tipo.label + '</span>';
     html += '<span class="badge ' + status.badge + '">' + status.label + '</span>';
-    html += '<button type="button" class="btn btn-outline btn-sm btn-icon" onclick="event.stopPropagation();abrirModalReuniao(\'' + r.id + '\')">✏</button>';
-    html += '<button type="button" class="btn btn-danger btn-sm btn-icon" onclick="event.stopPropagation();excluirReuniao(\'' + r.id + '\')">🗑</button>';
+    html += '<button type="button" class="btn btn-outline btn-sm btn-icon" title="Editar" onclick="event.stopPropagation();abrirModalReuniao(\'' + r.id + '\')">' + svgIcon('edit', 15) + '</button>';
+    html += '<button type="button" class="btn btn-danger btn-sm btn-icon" title="Excluir" onclick="event.stopPropagation();excluirReuniao(\'' + r.id + '\')">' + svgIcon('trash', 15) + '</button>';
     html += '</div></div>';
     html += pautaHtml + ataHtml;
     html += '</div>';
@@ -151,12 +151,12 @@ function verReuniao(id) {
   if (r.local)         body += '<div class="detail-row"><span class="detail-label">Local</span><span class="detail-value">' + r.local + '</span></div>';
   if (r.participantes) body += '<div class="detail-row"><span class="detail-label">Participantes</span><span class="detail-value">' + r.participantes + '</span></div>';
   if (r.pauta) {
-    body += '<hr class="divider"><div style="margin-bottom:4px;font-size:12px;font-weight:700;text-transform:uppercase;letter-spacing:.8px;color:#A0AEC0">PAUTA</div>';
-    body += '<div style="font-size:13.5px;color:#4A5568;white-space:pre-wrap;line-height:1.7;background:#F7FAFC;border-radius:8px;padding:12px">' + r.pauta + '</div>';
+    body += '<hr class="divider"><div class="meeting-section-label" style="margin-bottom:6px">Pauta</div>';
+    body += '<div style="font-size:13.5px;color:var(--text-2);white-space:pre-wrap;line-height:1.7;background:var(--panel-2);border:1px solid var(--hair);border-radius:var(--r-sm);padding:13px">' + r.pauta + '</div>';
   }
   if (r.ata) {
-    body += '<hr class="divider"><div style="margin-bottom:4px;font-size:12px;font-weight:700;text-transform:uppercase;letter-spacing:.8px;color:#A0AEC0">ATA COMPLETA</div>';
-    body += '<div style="font-size:13.5px;color:#2D3748;white-space:pre-wrap;line-height:1.8;background:#FAFCFF;border-radius:8px;padding:14px;border:1.5px solid #EDF2F7">' + r.ata + '</div>';
+    body += '<hr class="divider"><div class="meeting-section-label" style="margin-bottom:6px">Ata Completa</div>';
+    body += '<div style="font-size:13.5px;color:var(--text);white-space:pre-wrap;line-height:1.8;background:var(--panel-2);border:1px solid var(--hair);border-left:2px solid var(--gold);border-radius:var(--r-sm);padding:14px">' + r.ata + '</div>';
   }
 
   document.getElementById('reu-detalhe-body').innerHTML = body;

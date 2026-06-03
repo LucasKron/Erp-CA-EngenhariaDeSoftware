@@ -9,13 +9,13 @@ function renderResumo() {
   const cls = saldo >= 0 ? 'value-balance-positive' : 'value-balance-negative';
 
   document.getElementById('finance-summary').innerHTML =
-    '<div class="finance-card"><div class="finance-card-icon">💚</div>' +
+    '<div class="finance-card"><div class="finance-card-icon" style="color:var(--green)">' + svgIcon('income', 20) + '</div>' +
     '<div class="finance-card-value value-income">' + formatCurrency(receitas) + '</div>' +
     '<div class="finance-card-label">Total de Receitas</div></div>' +
-    '<div class="finance-card"><div class="finance-card-icon">🔴</div>' +
+    '<div class="finance-card"><div class="finance-card-icon" style="color:var(--red)">' + svgIcon('expense', 20) + '</div>' +
     '<div class="finance-card-value value-expense">' + formatCurrency(despesas) + '</div>' +
     '<div class="finance-card-label">Total de Despesas</div></div>' +
-    '<div class="finance-card"><div class="finance-card-icon">🏦</div>' +
+    '<div class="finance-card"><div class="finance-card-icon" style="color:var(--gold)">' + svgIcon('balance', 20) + '</div>' +
     '<div class="finance-card-value ' + cls + '">' + formatCurrency(saldo) + '</div>' +
     '<div class="finance-card-label">Saldo Atual</div></div>';
 }
@@ -40,21 +40,21 @@ function renderTransacoes() {
   emptyEl.classList.add('hidden');
 
   tbody.innerHTML = fin.map(f => {
-    const corVal = f.tipo === 'receita' ? '#38A169' : '#E53E3E';
+    const corVal = f.tipo === 'receita' ? 'var(--green)' : 'var(--red)';
     const badgeTipo = f.tipo === 'receita' ? 'badge-green' : 'badge-red';
-    const labelTipo = f.tipo === 'receita' ? '▲ Receita' : '▼ Despesa';
+    const labelTipo = f.tipo === 'receita' ? 'Receita' : 'Despesa';
     const sinal = f.tipo === 'receita' ? '+' : '−';
     return '<tr style="cursor:pointer" onclick="verDetalhe(\'' + f.id + '\')">' +
       '<td style="white-space:nowrap">' + formatDate(f.data) + '</td>' +
-      '<td style="max-width:280px"><div style="font-weight:600">' + f.descricao + '</div>' +
-      (f.observacao ? '<div style="font-size:12px;color:#A0AEC0">' + f.observacao + '</div>' : '') + '</td>' +
+      '<td style="max-width:280px"><div style="font-weight:600;color:var(--text)">' + f.descricao + '</div>' +
+      (f.observacao ? '<div style="font-size:12px;color:var(--text-3)">' + f.observacao + '</div>' : '') + '</td>' +
       '<td><span class="badge badge-gray">' + f.categoria + '</span></td>' +
       '<td><span class="badge ' + badgeTipo + '">' + labelTipo + '</span></td>' +
       '<td style="text-align:right;font-weight:700;font-size:14px;white-space:nowrap;color:' + corVal + '">' + sinal + ' ' + formatCurrency(f.valor) + '</td>' +
-      '<td style="text-align:center">' +
-        '<button type="button" class="btn btn-outline btn-sm btn-icon" onclick="event.stopPropagation();editarLancamento(\'' + f.id + '\')">✏</button>' +
-        '<button type="button" class="btn btn-danger btn-sm btn-icon" onclick="event.stopPropagation();excluirLancamento(\'' + f.id + '\')">🗑</button>' +
-      '</td></tr>';
+      '<td><div style="display:flex;gap:6px;justify-content:center">' +
+        '<button type="button" class="btn btn-outline btn-sm btn-icon" title="Editar" onclick="event.stopPropagation();editarLancamento(\'' + f.id + '\')">' + svgIcon('edit', 15) + '</button>' +
+        '<button type="button" class="btn btn-danger btn-sm btn-icon" title="Excluir" onclick="event.stopPropagation();excluirLancamento(\'' + f.id + '\')">' + svgIcon('trash', 15) + '</button>' +
+      '</div></td></tr>';
   }).join('');
 }
 
@@ -118,21 +118,20 @@ function salvarLancamento() {
 function verDetalhe(id) {
   const f = storage.get('financeiro').find(l => l.id === id);
   if (!f) return;
-  const bg = f.tipo === 'receita' ? '#F0FFF4' : '#FFF5F5';
-  const cor = f.tipo === 'receita' ? '#38A169' : '#E53E3E';
+  const cor = f.tipo === 'receita' ? 'var(--green)' : 'var(--red)';
   const sinal = f.tipo === 'receita' ? '+' : '−';
-  const emoji = f.tipo === 'receita' ? '💚' : '🔴';
+  const ic = f.tipo === 'receita' ? 'income' : 'expense';
   const label = f.tipo === 'receita' ? 'Receita' : 'Despesa';
 
-  let body = '<div style="display:flex;align-items:center;gap:12px;margin-bottom:16px;padding:14px;background:' + bg + ';border-radius:10px">';
-  body += '<span style="font-size:28px">' + emoji + '</span>';
-  body += '<div><div style="font-size:22px;font-weight:800;color:' + cor + '">' + sinal + ' ' + formatCurrency(f.valor) + '</div>';
-  body += '<div style="font-size:12px;color:#718096">' + label + '</div></div></div>';
+  let body = '<div style="display:flex;align-items:center;gap:14px;margin-bottom:18px;padding:16px;background:var(--panel-2);border:1px solid var(--hair);border-left:2px solid ' + cor + ';border-radius:var(--r-sm)">';
+  body += '<span style="color:' + cor + '">' + svgIcon(ic, 26) + '</span>';
+  body += '<div><div style="font-family:var(--font-display);font-size:24px;font-weight:600;color:' + cor + ';font-variant-numeric:tabular-nums">' + sinal + ' ' + formatCurrency(f.valor) + '</div>';
+  body += '<div style="font-family:var(--font-mono);font-size:11px;text-transform:uppercase;letter-spacing:0.1em;color:var(--text-3)">' + label + '</div></div></div>';
   body += '<div class="detail-row"><span class="detail-label">Descrição</span><span class="detail-value">' + f.descricao + '</span></div>';
   body += '<div class="detail-row"><span class="detail-label">Categoria</span><span class="detail-value">' + f.categoria + '</span></div>';
   body += '<div class="detail-row"><span class="detail-label">Data</span><span class="detail-value">' + formatDate(f.data) + '</span></div>';
   if (f.observacao) body += '<div class="detail-row"><span class="detail-label">Observação</span><span class="detail-value">' + f.observacao + '</span></div>';
-  if (f.comprovante) body += '<hr class="divider"><button type="button" class="btn btn-secondary btn-sm" onclick="downloadComprovante(\'' + id + '\')">⬇ Baixar Comprovante</button>';
+  if (f.comprovante) body += '<hr class="divider"><button type="button" class="btn btn-secondary btn-sm" onclick="downloadComprovante(\'' + id + '\')">' + svgIcon('download', 15) + 'Baixar Comprovante</button>';
 
   document.getElementById('detalhe-body').innerHTML = body;
   document.getElementById('btn-delete-lan').onclick = () => { excluirLancamento(id); closeModal('modal-detalhe'); };

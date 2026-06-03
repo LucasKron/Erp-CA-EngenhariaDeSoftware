@@ -1,25 +1,25 @@
 const PRIO_CONF = {
-  alta:  { badge: 'badge-red',    icon: '🔴', label: 'Alta'  },
-  media: { badge: 'badge-yellow', icon: '🟡', label: 'Média' },
-  baixa: { badge: 'badge-green',  icon: '🟢', label: 'Baixa' }
+  alta:  { badge: 'badge-red',    label: 'Alta'  },
+  media: { badge: 'badge-yellow', label: 'Média' },
+  baixa: { badge: 'badge-green',  label: 'Baixa' }
 };
 const STATUS_TAR = {
-  pendente:  { badge: 'badge-yellow', icon: '⏳', label: 'Pendente'      },
-  andamento: { badge: 'badge-blue',   icon: '🔄', label: 'Em andamento'  },
-  concluida: { badge: 'badge-green',  icon: '✅', label: 'Concluída'     },
-  cancelada: { badge: 'badge-red',    icon: '❌', label: 'Cancelada'     }
+  pendente:  { badge: 'badge-yellow', label: 'Pendente'      },
+  andamento: { badge: 'badge-blue',   label: 'Em andamento'  },
+  concluida: { badge: 'badge-green',  label: 'Concluída'     },
+  cancelada: { badge: 'badge-red',    label: 'Cancelada'     }
 };
 
 function renderStats() {
   const tarefas = storage.get('tarefas');
   const stats = [
-    { label: 'Total',        value: tarefas.length,                                        icon: '📋', color: 'icon-blue'   },
-    { label: 'Pendentes',    value: tarefas.filter(t => t.status === 'pendente').length,   icon: '⏳', color: 'icon-yellow' },
-    { label: 'Em andamento', value: tarefas.filter(t => t.status === 'andamento').length,  icon: '🔄', color: 'icon-purple' },
-    { label: 'Concluídas',   value: tarefas.filter(t => t.status === 'concluida').length,  icon: '✅', color: 'icon-green'  }
+    { label: 'Total',        value: tarefas.length,                                        icon: 'tasks',    color: 'icon-blue'   },
+    { label: 'Pendentes',    value: tarefas.filter(t => t.status === 'pendente').length,   icon: 'clock',    color: 'icon-yellow' },
+    { label: 'Em andamento', value: tarefas.filter(t => t.status === 'andamento').length,  icon: 'activity', color: 'icon-purple' },
+    { label: 'Concluídas',   value: tarefas.filter(t => t.status === 'concluida').length,  icon: 'check',    color: 'icon-green'  }
   ];
   document.getElementById('task-stats').innerHTML = stats.map(s =>
-    '<div class="stat-card"><div class="stat-card-top"><div class="stat-card-icon ' + s.color + '">' + s.icon + '</div></div>' +
+    '<div class="stat-card"><div class="stat-card-top"><div class="stat-card-icon ' + s.color + '">' + svgIcon(s.icon, 19) + '</div></div>' +
     '<div class="stat-card-value">' + s.value + '</div><div class="stat-card-label">' + s.label + '</div></div>'
   ).join('');
 }
@@ -50,19 +50,19 @@ function renderTarefas() {
     const prio = PRIO_CONF[t.prioridade] || PRIO_CONF.baixa;
     const status = STATUS_TAR[t.status] || STATUS_TAR.pendente;
     const atrasada = t.prazo && t.prazo < hoje && t.status === 'pendente';
-    const strikeStyle = t.status === 'concluida' ? 'text-decoration:line-through;color:#A0AEC0' : '';
-    const prazoHtml = t.prazo ? '<span style="font-size:13px' + (atrasada ? ';color:#E53E3E;font-weight:700' : '') + '">' + (atrasada ? '⚠ ' : '') + formatDate(t.prazo) + '</span>' : '—';
+    const strikeStyle = t.status === 'concluida' ? 'text-decoration:line-through;color:var(--text-3)' : 'color:var(--text)';
+    const prazoHtml = t.prazo ? '<span style="display:inline-flex;align-items:center;gap:5px;font-size:13px' + (atrasada ? ';color:var(--red);font-weight:600' : '') + '">' + (atrasada ? svgIcon('warn', 13) : '') + formatDate(t.prazo) + '</span>' : '—';
     return '<tr style="cursor:pointer' + (t.status === 'concluida' ? ';opacity:.6' : '') + '" onclick="abrirModalTarefa(\'' + t.id + '\')">' +
-      '<td><input type="checkbox" ' + (t.status === 'concluida' ? 'checked' : '') + ' onclick="event.stopPropagation();toggleConcluida(\'' + t.id + '\',this.checked)" style="width:16px;height:16px;cursor:pointer"></td>' +
-      '<td><div style="font-weight:600;' + strikeStyle + '">' + t.titulo + '</div>' + (t.descricao ? '<div style="font-size:12px;color:#A0AEC0">' + (t.descricao.length > 60 ? t.descricao.slice(0,60)+'…' : t.descricao) + '</div>' : '') + '</td>' +
+      '<td><input type="checkbox" ' + (t.status === 'concluida' ? 'checked' : '') + ' onclick="event.stopPropagation();toggleConcluida(\'' + t.id + '\',this.checked)" style="width:16px;height:16px;cursor:pointer;accent-color:var(--gold)"></td>' +
+      '<td><div style="font-weight:600;' + strikeStyle + '">' + t.titulo + '</div>' + (t.descricao ? '<div style="font-size:12px;color:var(--text-3)">' + (t.descricao.length > 60 ? t.descricao.slice(0,60)+'…' : t.descricao) + '</div>' : '') + '</td>' +
       '<td style="font-size:13px">' + (t.responsavel || '—') + '</td>' +
       '<td style="white-space:nowrap">' + prazoHtml + '</td>' +
-      '<td><span class="badge ' + prio.badge + '">' + prio.icon + ' ' + prio.label + '</span></td>' +
-      '<td><span class="badge ' + status.badge + '">' + status.icon + ' ' + status.label + '</span></td>' +
-      '<td style="text-align:center">' +
-        '<button type="button" class="btn btn-outline btn-sm btn-icon" onclick="event.stopPropagation();abrirModalTarefa(\'' + t.id + '\')">✏</button>' +
-        '<button type="button" class="btn btn-danger btn-sm btn-icon" onclick="event.stopPropagation();excluirTarefa(\'' + t.id + '\')">🗑</button>' +
-      '</td></tr>';
+      '<td><span class="badge ' + prio.badge + '">' + prio.label + '</span></td>' +
+      '<td><span class="badge ' + status.badge + '">' + status.label + '</span></td>' +
+      '<td><div style="display:flex;gap:6px;justify-content:center">' +
+        '<button type="button" class="btn btn-outline btn-sm btn-icon" title="Editar" onclick="event.stopPropagation();abrirModalTarefa(\'' + t.id + '\')">' + svgIcon('edit', 15) + '</button>' +
+        '<button type="button" class="btn btn-danger btn-sm btn-icon" title="Excluir" onclick="event.stopPropagation();excluirTarefa(\'' + t.id + '\')">' + svgIcon('trash', 15) + '</button>' +
+      '</div></td></tr>';
   }).join('');
 }
 

@@ -4,6 +4,10 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Tarefas — CA ERP</title>
+  <meta name="theme-color" content="#0a0f1e">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,400;0,9..144,500;0,9..144,600;0,9..144,700;1,9..144,500&family=IBM+Plex+Mono:ital,wght@0,400;0,500;0,600;1,400&family=IBM+Plex+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="css/style.css">
 </head>
 <body>
@@ -17,7 +21,7 @@
         <p>Gestão de tarefas e responsabilidades do CA</p>
       </div>
       <div class="topbar-right">
-        <button class="btn btn-primary" onclick="abrirModalTarefa()">+ Nova Tarefa</button>
+        <button class="btn btn-primary" onclick="abrirModalTarefa()" data-icon="plus">Nova Tarefa</button>
       </div>
     </header>
 
@@ -53,7 +57,7 @@
       <div class="table-card">
         <div class="table-card-header">
           <h2>Lista de Tarefas</h2>
-          <span id="total-tarefas" style="font-size:13px; color:#A0AEC0;"></span>
+          <span id="total-tarefas" class="kicker"></span>
         </div>
         <div class="table-scroll">
           <table>
@@ -73,7 +77,7 @@
         </div>
         <div id="empty-tarefas" class="hidden">
           <div class="empty-state">
-            <div class="empty-state-icon">✅</div>
+            <div class="empty-state-icon" data-icon="tasks" data-icon-size="40"></div>
             <h3>Nenhuma tarefa encontrada</h3>
             <p>Crie tarefas para delegar e acompanhar as responsabilidades do CA.</p>
           </div>
@@ -88,7 +92,7 @@
   <div class="modal">
     <div class="modal-header">
       <h3 id="modal-tar-title">Nova Tarefa</h3>
-      <button class="modal-close" onclick="closeModal('modal-tarefa')">✕</button>
+      <button class="modal-close" onclick="closeModal('modal-tarefa')" data-icon="close" data-icon-size="14"></button>
     </div>
     <div class="modal-body">
       <input type="hidden" id="edit-tar-id">
@@ -118,18 +122,18 @@
         <div class="form-group">
           <label class="form-label">Prioridade</label>
           <select class="form-control" id="tar-prioridade">
-            <option value="baixa">🟢 Baixa</option>
-            <option value="media" selected>🟡 Média</option>
-            <option value="alta">🔴 Alta</option>
+            <option value="baixa">Baixa</option>
+            <option value="media" selected>Média</option>
+            <option value="alta">Alta</option>
           </select>
         </div>
         <div class="form-group">
           <label class="form-label">Status</label>
           <select class="form-control" id="tar-status">
-            <option value="pendente">⏳ Pendente</option>
-            <option value="andamento">🔄 Em andamento</option>
-            <option value="concluida">✅ Concluída</option>
-            <option value="cancelada">❌ Cancelada</option>
+            <option value="pendente">Pendente</option>
+            <option value="andamento">Em andamento</option>
+            <option value="concluida">Concluída</option>
+            <option value="cancelada">Cancelada</option>
           </select>
         </div>
       </div>

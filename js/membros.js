@@ -14,9 +14,9 @@ function renderStats() {
   const ativos = membros.filter(m => m.ativo).length;
   const inativos = membros.filter(m => !m.ativo).length;
   document.getElementById('member-stats').innerHTML =
-    '<div class="stat-card"><div class="stat-card-top"><div class="stat-card-icon icon-blue">👥</div></div><div class="stat-card-value">' + membros.length + '</div><div class="stat-card-label">Total de Membros</div></div>' +
-    '<div class="stat-card"><div class="stat-card-top"><div class="stat-card-icon icon-green">✅</div></div><div class="stat-card-value">' + ativos + '</div><div class="stat-card-label">Membros Ativos</div></div>' +
-    '<div class="stat-card"><div class="stat-card-top"><div class="stat-card-icon icon-red">⏸</div></div><div class="stat-card-value">' + inativos + '</div><div class="stat-card-label">Membros Inativos</div></div>';
+    '<div class="stat-card"><div class="stat-card-top"><div class="stat-card-icon icon-blue">' + svgIcon('members', 19) + '</div></div><div class="stat-card-value">' + membros.length + '</div><div class="stat-card-label">Total de Membros</div></div>' +
+    '<div class="stat-card"><div class="stat-card-top"><div class="stat-card-icon icon-green">' + svgIcon('check', 19) + '</div></div><div class="stat-card-value">' + ativos + '</div><div class="stat-card-label">Membros Ativos</div></div>' +
+    '<div class="stat-card"><div class="stat-card-top"><div class="stat-card-icon icon-red">' + svgIcon('pause', 19) + '</div></div><div class="stat-card-value">' + inativos + '</div><div class="stat-card-label">Membros Inativos</div></div>';
 }
 
 function renderMembros() {
@@ -39,17 +39,17 @@ function renderMembros() {
     const badge = CARGO_CORES[m.cargo] || 'badge-gray';
     const statusBadge = m.ativo ? 'badge-green' : 'badge-gray';
     return '<tr style="cursor:pointer" onclick="verMembro(\'' + m.id + '\')">' +
-      '<td><div style="display:flex;align-items:center;gap:10px"><div class="member-avatar">' + getInitials(m.nome) + '</div>' +
-      '<div><div style="font-weight:600">' + m.nome + '</div>' + (m.email ? '<div style="font-size:12px;color:#A0AEC0">' + m.email + '</div>' : '') + '</div></div></td>' +
+      '<td><div style="display:flex;align-items:center;gap:11px"><div class="member-avatar">' + getInitials(m.nome) + '</div>' +
+      '<div><div style="font-weight:600;color:var(--text)">' + m.nome + '</div>' + (m.email ? '<div style="font-size:12px;color:var(--text-3)">' + m.email + '</div>' : '') + '</div></div></td>' +
       '<td><span class="badge ' + badge + '">' + (m.cargo || '—') + '</span></td>' +
       '<td>' + (m.periodo || '—') + '</td>' +
       '<td style="font-size:13px">' + (m.telefone || '—') + '</td>' +
       '<td><span class="badge ' + statusBadge + '">' + (m.ativo ? 'Ativo' : 'Inativo') + '</span></td>' +
       '<td style="white-space:nowrap">' + (m.dataEntrada ? formatDate(m.dataEntrada) : '—') + '</td>' +
-      '<td style="text-align:center">' +
-        '<button type="button" class="btn btn-outline btn-sm btn-icon" onclick="event.stopPropagation();abrirModalMembro(\'' + m.id + '\')">✏</button>' +
-        '<button type="button" class="btn btn-danger btn-sm btn-icon" onclick="event.stopPropagation();excluirMembro(\'' + m.id + '\')">🗑</button>' +
-      '</td></tr>';
+      '<td><div style="display:flex;gap:6px;justify-content:center">' +
+        '<button type="button" class="btn btn-outline btn-sm btn-icon" title="Editar" onclick="event.stopPropagation();abrirModalMembro(\'' + m.id + '\')">' + svgIcon('edit', 15) + '</button>' +
+        '<button type="button" class="btn btn-danger btn-sm btn-icon" title="Excluir" onclick="event.stopPropagation();excluirMembro(\'' + m.id + '\')">' + svgIcon('trash', 15) + '</button>' +
+      '</div></td></tr>';
   }).join('');
 }
 
@@ -102,15 +102,15 @@ function verMembro(id) {
 
   let body = '<div style="display:flex;align-items:center;gap:16px;margin-bottom:20px">';
   body += '<div class="member-avatar" style="width:56px;height:56px;font-size:20px">' + getInitials(m.nome) + '</div>';
-  body += '<div><div style="font-size:18px;font-weight:700;color:#1A202C">' + m.nome + '</div>';
+  body += '<div><div style="font-family:var(--font-display);font-size:20px;font-weight:600;color:var(--text)">' + m.nome + '</div>';
   body += '<span class="badge ' + badge + '" style="margin-top:4px">' + (m.cargo || 'Sem cargo') + '</span>';
   body += '<span class="badge ' + statusBadge + '" style="margin-left:6px">' + (m.ativo ? 'Ativo' : 'Inativo') + '</span></div></div>';
   body += '<hr class="divider">';
   if (m.periodo)     body += '<div class="detail-row"><span class="detail-label">Período</span><span class="detail-value">' + m.periodo + '</span></div>';
-  if (m.email)       body += '<div class="detail-row"><span class="detail-label">E-mail</span><span class="detail-value"><a href="mailto:' + m.email + '" style="color:#2C3E7A">' + m.email + '</a></span></div>';
+  if (m.email)       body += '<div class="detail-row"><span class="detail-label">E-mail</span><span class="detail-value"><a href="mailto:' + m.email + '" style="color:var(--blue)">' + m.email + '</a></span></div>';
   if (m.telefone)    body += '<div class="detail-row"><span class="detail-label">Telefone</span><span class="detail-value">' + m.telefone + '</span></div>';
   if (m.dataEntrada) body += '<div class="detail-row"><span class="detail-label">Membro desde</span><span class="detail-value">' + formatDate(m.dataEntrada) + '</span></div>';
-  if (m.observacao)  body += '<hr class="divider"><div style="font-size:13px;color:#4A5568;background:#F7FAFC;border-radius:8px;padding:12px">' + m.observacao + '</div>';
+  if (m.observacao)  body += '<hr class="divider"><div style="font-size:13px;color:var(--text-2);background:var(--panel-2);border:1px solid var(--hair);border-radius:var(--r-sm);padding:12px">' + m.observacao + '</div>';
 
   document.getElementById('mem-detalhe-body').innerHTML = body;
   document.getElementById('btn-del-mem').onclick = () => { excluirMembro(id); closeModal('modal-mem-detalhe'); };

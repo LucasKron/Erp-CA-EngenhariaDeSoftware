@@ -24,8 +24,8 @@ function processFile(file) {
   selectedFile = file;
   const nameWithoutExt = file.name.replace(/\.[^.]+$/, '');
   document.getElementById('doc-nome').value = nameWithoutExt;
-  document.getElementById('file-selected').textContent = '✓ ' + file.name + ' (' + formatFileSize(file.size) + ')';
-  document.getElementById('file-selected').style.display = 'block';
+  document.getElementById('file-selected').innerHTML = svgIcon('check', 14) + '<span>' + file.name + ' (' + formatFileSize(file.size) + ')</span>';
+  document.getElementById('file-selected').style.display = 'flex';
 }
 
 function salvarDocumento() {
@@ -93,7 +93,7 @@ function renderDocs() {
 
   const container = document.getElementById('docs-container');
   if (!docs.length) {
-    container.innerHTML = '<div class="empty-state"><div class="empty-state-icon">📁</div><h3>Nenhum documento encontrado</h3><p>Envie o primeiro documento clicando em "Enviar Documento".</p><button type="button" class="btn btn-primary" onclick="openModal(\'modal-upload\')">⬆ Enviar Documento</button></div>';
+    container.innerHTML = '<div class="empty-state"><div class="empty-state-icon">' + svgIcon('documents', 40) + '</div><h3>Nenhum documento encontrado</h3><p>Envie o primeiro documento clicando em "Enviar Documento".</p><button type="button" class="btn btn-primary" onclick="openModal(\'modal-upload\')">' + svgIcon('upload', 15) + 'Enviar Documento</button></div>';
     return;
   }
 
@@ -103,12 +103,12 @@ function renderDocs() {
   docs.forEach(doc => {
     html += '<div class="doc-card" onclick="viewDoc(\'' + doc.id + '\')">';
     html += '<div style="display:flex;align-items:flex-start;justify-content:space-between;gap:8px">';
-    html += '<div class="doc-card-icon">' + getFileIcon(doc.tipo) + '</div>';
+    html += '<div class="doc-card-icon">' + getFileIcon(doc.tipo) + '<span class="doc-card-ext">' + ((doc.tipo || 'arq').toUpperCase()) + '</span></div>';
     html += '<span class="badge ' + (catColors[doc.categoria] || 'badge-gray') + '">' + (doc.categoria || 'Sem categoria') + '</span>';
     html += '</div>';
     html += '<div class="doc-card-name">' + doc.nome + '</div>';
-    if (doc.descricao) html += '<div style="font-size:12px;color:#718096;line-height:1.4">' + doc.descricao + '</div>';
-    html += '<div class="doc-card-meta">📅 ' + (doc.data ? formatDate(doc.data) : formatDateTime(doc.uploadEm)) + (doc.tamanho ? ' · ' + doc.tamanho : '') + '</div>';
+    if (doc.descricao) html += '<div style="font-size:12px;color:var(--text-3);line-height:1.4">' + doc.descricao + '</div>';
+    html += '<div class="doc-card-meta">' + (doc.data ? formatDate(doc.data) : formatDateTime(doc.uploadEm)) + (doc.tamanho ? ' · ' + doc.tamanho : '') + '</div>';
     html += '</div>';
   });
   html += '</div>';
@@ -126,8 +126,8 @@ function viewDoc(id) {
   body += '<div class="detail-row"><span class="detail-label">Tamanho</span><span class="detail-value">' + (doc.tamanho || '—') + '</span></div>';
   body += '<div class="detail-row"><span class="detail-label">Data</span><span class="detail-value">' + (doc.data ? formatDate(doc.data) : '—') + '</span></div>';
   body += '<div class="detail-row"><span class="detail-label">Enviado em</span><span class="detail-value">' + formatDateTime(doc.uploadEm) + '</span></div>';
-  if (doc.descricao) body += '<hr class="divider"><div style="font-size:13.5px;color:#4A5568;line-height:1.6">' + doc.descricao + '</div>';
-  body += '<hr class="divider"><div style="font-size:12px;color:#A0AEC0;background:#F7FAFC;border-radius:8px;padding:10px;text-align:center">' + (doc.fileData ? 'Arquivo disponível para download' : 'Arquivo sem dados (adicionado manualmente)') + '</div>';
+  if (doc.descricao) body += '<hr class="divider"><div style="font-size:13.5px;color:var(--text-2);line-height:1.6">' + doc.descricao + '</div>';
+  body += '<hr class="divider"><div style="font-size:12px;color:var(--text-3);background:var(--panel-2);border:1px solid var(--hair);border-radius:var(--r-sm);padding:10px;text-align:center;font-family:var(--font-mono)">' + (doc.fileData ? 'Arquivo disponível para download' : 'Arquivo sem dados (adicionado manualmente)') + '</div>';
 
   document.getElementById('view-body').innerHTML = body;
   document.getElementById('view-delete-btn').onclick = () => deleteDoc(id);
