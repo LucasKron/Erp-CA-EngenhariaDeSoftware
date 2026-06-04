@@ -35,7 +35,21 @@ interface NavItem {
         }
       </nav>
 
-      <div class="sidebar-footer">PUC · TOLEDO — ERP v{{ version }}</div>
+      <div class="sidebar-bottom">
+        <a
+          href="https://erp-ca-engenharia-de-software.vercel.app/login.html"
+          target="_blank"
+          rel="noopener"
+          class="admin-link"
+        >
+          <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+            <rect x="5" y="11" width="14" height="10" rx="2"/>
+            <path d="M8 11V7a4 4 0 0 1 8 0v4"/>
+          </svg>
+          Área da Diretoria
+        </a>
+        <div class="sidebar-footer">PUC · TOLEDO — ERP v{{ version }}</div>
+      </div>
     </aside>
   `,
 })

@@ -253,9 +253,28 @@ a {
   justify-content: center;
 }
 
-.sidebar-footer {
-  padding: 18px 24px;
+.sidebar-bottom {
   border-top: 1px solid var(--hair);
+}
+
+.admin-link {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 12px 24px;
+  font-family: var(--font-mono);
+  font-size: 10.5px;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--text-3);
+  transition: color 0.15s;
+}
+.admin-link:hover {
+  color: var(--gold-2, #c8a24c);
+}
+
+.sidebar-footer {
+  padding: 10px 24px 18px;
   font-family: var(--font-mono);
   font-size: 10px;
   letter-spacing: 0.1em;
