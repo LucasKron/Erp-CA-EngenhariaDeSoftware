@@ -70,6 +70,24 @@ Pontos-chave já resolvidos:
 - As fotos são guardadas em base64 no banco (reduzidas no upload). Para muitos
   membros/fotos grandes, considere migrar para arquivos/URLs.
 
+## Site em `site-publico/` (cópia neste repositório) — JÁ INTEGRADO
+
+Além do projeto externo, o site que vive em **`site-publico/index.html`** agora
+também é dinâmico na seção **Nossa Diretoria**:
+
+- `site-publico/erp-sync.js` (novo): busca `GET {ERP}/api/membros` e remonta os
+  cards da diretoria (presidente, diretores, suplentes) com as mesmas classes
+  CSS. Se o ERP não responder ou estiver vazio, mantém os cards fixos do HTML.
+- `site-publico/config.js`: novo `ERP_API_URL` (URL pública do painel).
+- `site-publico/index.html`: `id="dir-grid"` na grade + `<script src="erp-sync.js">`.
+
+**Puxar a diretoria do site para o painel (1 clique):**
+1. `node server/scripts/build-diretoria-seed.js` gera `assets/diretoria-seed.json`
+   a partir do `site-publico/index.html` (já gerado, com as 10 pessoas e fotos).
+2. No painel (`membros.html`), logado, clique em **"Importar do site"**. Isso
+   grava a diretoria no banco via `PUT /api/membros`.
+3. A partir daí: editou no painel → recarregou o site → aparece atualizado.
+
 ## Próximas fases (ainda não feitas)
 
 - **Notícias**: criar o tipo no ERP + seção dinâmica no site.

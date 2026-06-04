@@ -10,5 +10,10 @@
 // (Quando servido pelo Node, a rota /config.js sobrescreve este arquivo com o
 //  valor de ALLOW_ORIGIN do .env do servidor.)
 window.APP_CONFIG = {
-  API_URL: "http://localhost:3000"
+  API_URL: "http://localhost:3000",
+
+  // URL pública do painel/ERP. A seção "Nossa Diretoria" busca os membros aqui
+  // (GET /api/membros) via erp-sync.js. Editou no painel -> aparece no site.
+  // Em desenvolvimento local aponte para "http://localhost:3000".
+  ERP_API_URL: "https://erp-ca-engenharia-de-software.vercel.app"
 };

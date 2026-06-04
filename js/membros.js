@@ -184,6 +184,40 @@ function excluirMembro(id) {
   renderMembros();
 }
 
+// ===== IMPORTAR DIRETORIA DO SITE PÚBLICO =====
+// Lê assets/diretoria-seed.json (gerado a partir do site) e grava como a
+// coleção de membros. Depois disso, o site público lê do ERP — então editar
+// aqui passa a refletir no site.
+async function importarDoSite() {
+  const atuais = storage.get('membros');
+  if (atuais.length && !confirm(
+    'Isto vai SUBSTITUIR os ' + atuais.length + ' membro(s) atuais pela diretoria do site público. Continuar?'
+  )) return;
+
+  try {
+    const res = await fetch('assets/diretoria-seed.json', { cache: 'no-store' });
+    if (!res.ok) throw new Error('HTTP ' + res.status);
+    const seed = await res.json();
+    if (!Array.isArray(seed) || !seed.length) throw new Error('arquivo vazio');
+
+    // IDs novos para evitar colisão e marca data de entrada de hoje se faltar.
+    const membros = seed.map(m => ({
+      ...m,
+      id: generateId(),
+      ativo: m.ativo !== false,
+      dataEntrada: m.dataEntrada || todayISO(),
+    }));
+
+    storage.set('membros', membros); // atualiza cache + PUT autenticado na API
+    showToast(membros.length + ' membro(s) importado(s) do site!');
+    renderStats();
+    renderMembros();
+  } catch (err) {
+    console.error('Falha ao importar do site:', err);
+    showToast('Não foi possível importar do site. Tente novamente.', 'error');
+  }
+}
+
 // ===== INIT =====
 initSidebar('membros');
 document.getElementById('mem-data').value = todayISO();
