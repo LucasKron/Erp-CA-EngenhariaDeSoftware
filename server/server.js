@@ -202,6 +202,20 @@ const PAGES = ['home', 'membros', 'financeiro', 'eventos', 'reunioes', 'tarefas'
 app.use('/css', express.static(path.join(ROOT, 'css')));
 app.use('/js', express.static(path.join(ROOT, 'js')));
 app.use('/assets', express.static(path.join(ROOT, 'assets')));
+
+// Site institucional público (estático) servido no MESMO deploy do painel.
+// Fica em /site/ e lê a diretoria da própria API (erp-sync.js -> /api/membros).
+// O 1º middleware garante a barra final (/site -> /site/) para os caminhos
+// relativos do site (config.js, erp-sync.js, style.css...) resolverem certo.
+app.use(
+  '/site',
+  (req, res, next) => {
+    if (req.originalUrl.split('?')[0] === '/site') return res.redirect(301, '/site/');
+    next();
+  },
+  express.static(path.join(ROOT, 'site-publico')),
+);
+
 app.get('/', (_req, res) => res.sendFile(path.join(ROOT, 'home.html')));
 PAGES.forEach((p) => app.get('/' + p + '.html', (_req, res) => res.sendFile(path.join(ROOT, p + '.html'))));
 

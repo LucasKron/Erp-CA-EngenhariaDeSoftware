@@ -5,7 +5,7 @@
       "src": "api/index.js",
       "use": "@vercel/node",
       "config": {
-        "includeFiles": ["server/**", "*.html", "css/**", "js/**", "assets/**"]
+        "includeFiles": ["server/**", "*.html", "css/**", "js/**", "assets/**", "site-publico/**"]
       }
     }
   ],
