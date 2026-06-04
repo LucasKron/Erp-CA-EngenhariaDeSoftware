@@ -52,22 +52,12 @@ git push
 5. **Primeiro login:** abra `https://<seu-painel>/login.html`, digite seu e-mail
    (autorizado) e **defina uma senha** (o primeiro acesso já cadastra). Pronto, entrou.
 
-### Carregar a diretoria + eventos reais no banco de produção
-O banco de produção começa **vazio**. Para popular com a diretoria/eventos do site
-(uma vez só):
+### Carregar a diretoria real no banco de produção
+O banco de produção começa **vazio**. Para popular com a diretoria do site
+(uma vez só): faça login no painel (`/membros.html`) e clique em
+**"Importar do site"** — ele lê `assets/diretoria-seed.json` e grava no banco.
 
-```bash
-# 1) Pegue um token: faça login pelo site do painel e copie em
-#    DevTools (F12) → Application → Local Storage → a chave "ca_erp_token".
-#    OU pegue por linha de comando:
-curl -X POST https://<seu-painel>/api/auth/login -H "Content-Type: application/json" \
-  -d "{\"email\":\"SEU_EMAIL\",\"password\":\"SUA_SENHA\"}"
-
-# 2) Rode o import apontando para a URL de produção + o token (3º argumento):
-node server/scripts/import-site-data.js "C:/MeusProjetos/FRONT-END-CYBER/ca_esw (3).html" https://<seu-painel> COLE_O_TOKEN_AQUI
-```
-
-Confirme abrindo `https://<seu-painel>/api/eventos` — deve mostrar o JSON dos eventos.
+Confirme abrindo `https://<seu-painel>/api/membros` — deve mostrar o JSON dos membros.
 
 ---
 

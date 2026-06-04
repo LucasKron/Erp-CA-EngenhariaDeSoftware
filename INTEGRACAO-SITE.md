@@ -31,9 +31,9 @@ ERP. Ou seja:
 - `membros.html` / `js/membros.js`: upload de foto (com redução automática),
   preview, e exibição da foto na tabela e no perfil. Cargos atualizados para os
   reais do CA (incl. suplentes).
-- `server/scripts/import-site-data.js`: importa a diretoria e os eventos reais
-  do HTML do site para o banco.
-- `server/scripts/patch-site-html.js`: marca o HTML do site (ids + script).
+- `server/scripts/build-diretoria-seed.js`: extrai a diretoria do
+  `site-publico/index.html` para `assets/diretoria-seed.json` (usado pelo botão
+  "Importar do site" no painel).
 
 **Site (`FRONT-END-CYBER`)**
 - `erp-sync.js` (novo): busca do ERP e renderiza Eventos + Diretoria.
@@ -50,12 +50,11 @@ ERP. Ou seja:
 ## Reimportar os dados do site (se precisar recomeçar)
 
 ```bash
-# (re)carrega diretoria + eventos do HTML para o banco do ERP
-node server/scripts/import-site-data.js "C:/MeusProjetos/FRONT-END-CYBER/ca_esw (3).html"
-
-# (re)aplica as marcações no HTML do site (idempotente)
-node server/scripts/patch-site-html.js "C:/MeusProjetos/FRONT-END-CYBER/ca_esw (3).html"
+# (re)gera assets/diretoria-seed.json a partir do site-publico/index.html
+node server/scripts/build-diretoria-seed.js
 ```
+
+Depois, no painel (`membros.html`, logado), clique em **"Importar do site"**.
 
 ## Publicar (deploy)
 

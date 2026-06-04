@@ -96,7 +96,7 @@ app.post('/api/auth/register', async (req, res) => {
   const email = auth.normEmail(req.body && req.body.email);
   const password = String((req.body && req.body.password) || '');
   if (!auth.isAllowedEmail(email)) return res.status(403).json({ ok: false, error: 'e-mail não autorizado' });
-  if (password.length < 4) return res.status(400).json({ ok: false, error: 'senha muito curta (mínimo 4 caracteres)' });
+  if (password.length < 8) return res.status(400).json({ ok: false, error: 'senha muito curta (mínimo 8 caracteres)' });
   if (await getUser(email)) return res.status(409).json({ ok: false, error: 'este e-mail já tem senha — faça login' });
   const { salt, hash } = auth.hashPassword(password);
   await pool.query('INSERT INTO app_users (email, salt, hash) VALUES ($1, $2, $3)', [email, salt, hash]);

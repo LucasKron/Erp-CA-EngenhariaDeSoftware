@@ -69,9 +69,11 @@ function verifyToken(token) {
 }
 
 function getTokenFromReq(req) {
+  // Apenas o header "Authorization: Bearer <token>". Não aceitamos token via
+  // query string nem header x-token, pois vazariam em logs/histórico/Referer.
   const h = req.headers['authorization'] || '';
   if (h.startsWith('Bearer ')) return h.slice(7).trim();
-  return req.query.token || req.headers['x-token'] || '';
+  return '';
 }
 
 module.exports = {
