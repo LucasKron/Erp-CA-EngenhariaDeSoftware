@@ -31,8 +31,8 @@ ERP. Ou seja:
 - `membros.html` / `js/membros.js`: upload de foto (com redução automática),
   preview, e exibição da foto na tabela e no perfil. Cargos atualizados para os
   reais do CA (incl. suplentes).
-- `server/scripts/build-diretoria-seed.js`: extrai a diretoria do
-  `site-publico/index.html` para `assets/diretoria-seed.json` (usado pelo botão
+- `server/scripts/build-seeds.js`: extrai **diretoria, eventos e notícias** do
+  `site-publico/index.html` para `assets/*-seed.json` (usados pelos botões
   "Importar do site" no painel).
 
 **Site (`FRONT-END-CYBER`)**
@@ -50,11 +50,12 @@ ERP. Ou seja:
 ## Reimportar os dados do site (se precisar recomeçar)
 
 ```bash
-# (re)gera assets/diretoria-seed.json a partir do site-publico/index.html
-node server/scripts/build-diretoria-seed.js
+# (re)gera os assets/*-seed.json a partir do site-publico/index.html
+node server/scripts/build-seeds.js
 ```
 
-Depois, no painel (`membros.html`, logado), clique em **"Importar do site"**.
+Depois, no painel (logado), clique em **"Importar do site"** em
+`membros.html`, `eventos.html` e `noticias.html`.
 
 ## Publicar (deploy)
 
@@ -69,22 +70,22 @@ Pontos-chave já resolvidos:
 - As fotos são guardadas em base64 no banco (reduzidas no upload). Para muitos
   membros/fotos grandes, considere migrar para arquivos/URLs.
 
-## Site em `site-publico/` (cópia neste repositório) — JÁ INTEGRADO
+## Site em `site-publico/` (servido em `/site/` no mesmo deploy) — JÁ INTEGRADO
 
-Além do projeto externo, o site que vive em **`site-publico/index.html`** agora
-também é dinâmico na seção **Nossa Diretoria**:
+O site que vive em **`site-publico/index.html`** é dinâmico em **três** seções:
+**Notícias**, **Eventos** e **Nossa Diretoria**.
 
-- `site-publico/erp-sync.js` (novo): busca `GET {ERP}/api/membros` e remonta os
-  cards da diretoria (presidente, diretores, suplentes) com as mesmas classes
-  CSS. Se o ERP não responder ou estiver vazio, mantém os cards fixos do HTML.
-- `site-publico/config.js`: novo `ERP_API_URL` (URL pública do painel).
-- `site-publico/index.html`: `id="dir-grid"` na grade + `<script src="erp-sync.js">`.
+- `site-publico/erp-sync.js`: busca `GET {ERP}/api/{membros,eventos,noticias}` e
+  remonta os cards com as mesmas classes CSS do site. Se o ERP não responder ou
+  uma coleção estiver vazia, mantém os cards fixos daquela seção (nunca quebra).
+- `site-publico/config.js`: `ERP_API_URL` (URL pública do painel).
+- `site-publico/index.html`: `id="news-grid"`, `id="ev-grid"`, `id="dir-grid"`
+  nas grades + `<script src="erp-sync.js">`.
 
-**Puxar a diretoria do site para o painel (1 clique):**
-1. `node server/scripts/build-diretoria-seed.js` gera `assets/diretoria-seed.json`
-   a partir do `site-publico/index.html` (já gerado, com as 10 pessoas e fotos).
-2. No painel (`membros.html`), logado, clique em **"Importar do site"**. Isso
-   grava a diretoria no banco via `PUT /api/membros`.
+**Puxar os dados do site para o painel (1 clique por seção):**
+1. `node server/scripts/build-seeds.js` (re)gera `assets/{diretoria,eventos,noticias}-seed.json`.
+2. No painel, logado, clique em **"Importar do site"** em `membros.html`,
+   `eventos.html` e `noticias.html`. Cada um grava no banco via `PUT /api/...`.
 3. A partir daí: editou no painel → recarregou o site → aparece atualizado.
 
 ## Próximas fases (ainda não feitas)

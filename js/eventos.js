@@ -143,6 +143,28 @@ function excluirEvento(id) {
   renderEventos();
 }
 
+// ===== IMPORTAR EVENTOS DO SITE PÚBLICO =====
+async function importarDoSite() {
+  const atuais = storage.get('eventos');
+  if (atuais.length && !confirm(
+    'Isto vai SUBSTITUIR os ' + atuais.length + ' evento(s) atuais pelos do site público. Continuar?'
+  )) return;
+  try {
+    const res = await fetch('assets/eventos-seed.json', { cache: 'no-store' });
+    if (!res.ok) throw new Error('HTTP ' + res.status);
+    const seed = await res.json();
+    if (!Array.isArray(seed) || !seed.length) throw new Error('arquivo vazio');
+    const eventos = seed.map(e => ({ ...e, id: generateId(), status: e.status || 'planejado' }));
+    storage.set('eventos', eventos);
+    showToast(eventos.length + ' evento(s) importado(s) do site!');
+    renderStats();
+    renderEventos();
+  } catch (err) {
+    console.error('Falha ao importar eventos do site:', err);
+    showToast('Não foi possível importar do site. Tente novamente.', 'error');
+  }
+}
+
 // ===== INIT =====
 initSidebar('eventos');
 document.getElementById('ev-data').value = todayISO();

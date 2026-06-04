@@ -1,0 +1,134 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Notícias — CA ERP</title>
+  <meta name="theme-color" content="#0a0f1e">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,400;0,9..144,500;0,9..144,600;0,9..144,700;1,9..144,500&family=IBM+Plex+Mono:ital,wght@0,400;0,500;0,600;1,400&family=IBM+Plex+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+<div class="layout">
+  <aside class="sidebar" id="sidebar"></aside>
+
+  <main class="main">
+    <header class="topbar">
+      <div class="topbar-left">
+        <h1>Notícias</h1>
+        <p>Notícias e avisos exibidos no site público</p>
+      </div>
+      <div class="topbar-right">
+        <button class="btn btn-outline" onclick="importarDoSite()" data-icon="download" title="Carrega as notícias que estão no site público para o painel">Importar do site</button>
+        <button class="btn btn-primary" onclick="abrirModalNoticia()" data-icon="plus">Nova Notícia</button>
+      </div>
+    </header>
+
+    <div class="content">
+      <!-- Stats -->
+      <div class="cards-grid" id="news-stats"></div>
+
+      <!-- Filtros -->
+      <div class="table-card" style="margin-bottom:20px;">
+        <div style="padding:14px 20px;">
+          <div class="filters-row">
+            <div class="search-input-wrap" style="flex:1; min-width:180px;">
+              <input type="text" class="form-control" id="search-news" placeholder="Buscar notícia..." oninput="renderNoticias()">
+            </div>
+            <select class="form-control" id="filter-cat-news" style="width:auto;" onchange="renderNoticias()">
+              <option value="">Todas as categorias</option>
+              <option>Evento</option>
+              <option>Oportunidade</option>
+              <option>Aviso</option>
+              <option>Representação</option>
+              <option>Produto</option>
+              <option>Institucional</option>
+            </select>
+          </div>
+        </div>
+      </div>
+
+      <!-- Lista de notícias -->
+      <div id="noticias-container"></div>
+    </div>
+  </main>
+</div>
+
+<!-- Modal Notícia -->
+<div class="modal-backdrop hidden" id="modal-noticia">
+  <div class="modal modal-lg">
+    <div class="modal-header">
+      <h3 id="modal-news-title">Nova Notícia</h3>
+      <button class="modal-close" onclick="closeModal('modal-noticia')" data-icon="close" data-icon-size="14"></button>
+    </div>
+    <div class="modal-body">
+      <input type="hidden" id="edit-news-id">
+
+      <div class="form-group">
+        <label class="form-label">Título <span>*</span></label>
+        <input type="text" class="form-control" id="news-titulo" placeholder="Ex: Semana de Tecnologia & Inovação">
+      </div>
+
+      <div class="form-row form-row-2">
+        <div class="form-group">
+          <label class="form-label">Categoria</label>
+          <select class="form-control" id="news-categoria">
+            <option>Evento</option>
+            <option>Oportunidade</option>
+            <option>Aviso</option>
+            <option>Representação</option>
+            <option>Produto</option>
+            <option>Institucional</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label class="form-label">Data</label>
+          <input type="date" class="form-control" id="news-data">
+        </div>
+      </div>
+
+      <div class="form-group">
+        <label class="form-label">Descrição <span>*</span></label>
+        <textarea class="form-control" id="news-descricao" rows="3" placeholder="Resumo da notícia que aparece no card do site..."></textarea>
+      </div>
+
+      <div class="form-row form-row-2">
+        <div class="form-group">
+          <label class="form-label">Texto do link <span style="font-weight:400;color:var(--text-3)">(rodapé do card)</span></label>
+          <input type="text" class="form-control" id="news-chamada" placeholder="Ex: Saiba mais">
+        </div>
+        <div class="form-group">
+          <label class="form-label">Link <span style="font-weight:400;color:var(--text-3)">(opcional)</span></label>
+          <input type="url" class="form-control" id="news-link" placeholder="https://...">
+        </div>
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-outline" onclick="closeModal('modal-noticia')">Cancelar</button>
+      <button class="btn btn-primary" onclick="salvarNoticia()">Salvar Notícia</button>
+    </div>
+  </div>
+</div>
+
+<!-- Modal Detalhe -->
+<div class="modal-backdrop hidden" id="modal-news-detalhe">
+  <div class="modal modal-lg">
+    <div class="modal-header">
+      <h3 id="news-detalhe-title">Notícia</h3>
+      <button class="modal-close" onclick="closeModal('modal-news-detalhe')" data-icon="close" data-icon-size="14"></button>
+    </div>
+    <div class="modal-body" id="news-detalhe-body"></div>
+    <div class="modal-footer">
+      <button class="btn btn-danger btn-sm" id="btn-del-news" data-icon="trash">Excluir</button>
+      <button class="btn btn-secondary btn-sm" id="btn-edit-news" data-icon="edit">Editar</button>
+      <button class="btn btn-outline" onclick="closeModal('modal-news-detalhe')">Fechar</button>
+    </div>
+  </div>
+</div>
+
+<script src="js/app.js"></script>
+<script src="js/noticias.js"></script>
+</body>
+</html>

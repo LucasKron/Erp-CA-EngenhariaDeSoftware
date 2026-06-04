@@ -88,6 +88,17 @@ CREATE TABLE IF NOT EXISTS documentos (
     file_data  text
 );
 
+CREATE TABLE IF NOT EXISTS noticias (
+    id         text PRIMARY KEY DEFAULT gen_random_uuid()::text,
+    titulo     text        NOT NULL,
+    categoria  text,
+    data       date,
+    descricao  text        DEFAULT '',
+    chamada    text,
+    link       text,
+    criado_em  timestamptz NOT NULL DEFAULT now()
+);
+
 -- Usuários do painel (login por e-mail autorizado + senha).
 CREATE TABLE IF NOT EXISTS app_users (
     email      text PRIMARY KEY,

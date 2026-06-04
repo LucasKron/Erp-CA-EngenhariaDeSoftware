@@ -96,6 +96,21 @@ const RESOURCES = {
     ],
   },
 
+  noticias: {
+    table: 'noticias',
+    order: 'data DESC NULLS LAST, criado_em DESC',
+    columns: [
+      ['id', 'id', 'text'],
+      ['titulo', 'titulo', 'text'],
+      ['categoria', 'categoria', 'text'],
+      ['data', 'data', 'date'],
+      ['descricao', 'descricao', 'text'],
+      ['chamada', 'chamada', 'text'],
+      ['link', 'link', 'text'],
+      ['criadoEm', 'criado_em', 'ts'],
+    ],
+  },
+
   documentos: {
     table: 'documentos',
     order: 'upload_em DESC NULLS LAST',

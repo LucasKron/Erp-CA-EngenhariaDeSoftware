@@ -11,6 +11,7 @@ const ICONS = {
   finance: '<rect x="2.5" y="6" width="19" height="12" rx="2"/><circle cx="12" cy="12" r="2.4"/><path d="M6 12h.01M18 12h.01"/>',
   members: '<path d="M16 19v-1.5a4 4 0 0 0-4-4H7a4 4 0 0 0-4 4V19"/><circle cx="9.5" cy="7.5" r="3.2"/><path d="M21 19v-1.5a4 4 0 0 0-3-3.85"/><path d="M15.5 4.15a4 4 0 0 1 0 7.2"/>',
   events: '<rect x="3" y="4.5" width="18" height="16" rx="2"/><path d="M3 9.5h18M8 2.5v4M16 2.5v4"/>',
+  news: '<path d="M4 5h13a1 1 0 0 1 1 1v12a2 2 0 0 0 2-2V8"/><path d="M4 5a1 1 0 0 0-1 1v11a2 2 0 0 0 2 2h12"/><path d="M7 8.5h7M7 12h7M7 15.5h4"/>',
   meetings: '<rect x="5" y="4" width="14" height="17" rx="2"/><path d="M9 4V3.2a1 1 0 0 1 1-1h4a1 1 0 0 1 1 1V4"/><path d="M9 11h6M9 15h4"/>',
   tasks: '<rect x="3.5" y="3.5" width="17" height="17" rx="2.5"/><path d="M8.5 12l2.5 2.5L16 9"/>',
   check: '<path d="M5 12.5l4.5 4.5L19 7"/>',
@@ -262,6 +263,7 @@ function initSidebar(activePage) {
     { id: 'financeiro', href: 'financeiro.html', icon: 'finance', label: 'Financeiro' },
     { id: 'membros', href: 'membros.html', icon: 'members', label: 'Membros' },
     { id: 'eventos', href: 'eventos.html', icon: 'events', label: 'Eventos' },
+    { id: 'noticias', href: 'noticias.html', icon: 'news', label: 'Notícias' },
     { id: 'reunioes', href: 'reunioes.html', icon: 'meetings', label: 'Reuniões' },
     { id: 'tarefas', href: 'tarefas.html', icon: 'tasks', label: 'Tarefas' },
   ];

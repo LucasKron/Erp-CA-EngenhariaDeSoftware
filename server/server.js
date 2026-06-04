@@ -29,7 +29,7 @@ const PORT = Number(process.env.PORT) || 3000;
 const ROOT = path.join(__dirname, '..'); // raiz do projeto (páginas do painel)
 
 // GET público (sem login): só o que o site institucional precisa exibir.
-const PUBLIC_GET = new Set(['eventos', 'membros']);
+const PUBLIC_GET = new Set(['eventos', 'membros', 'noticias']);
 // Campos de membro liberados ao público (sem e-mail, telefone, período...).
 const PUBLIC_MEMBRO_FIELDS = new Set(['id', 'nome', 'cargo', 'ativo', 'observacao', 'foto']);
 
@@ -198,7 +198,7 @@ app.put('/api/:resource', requireAuth, resolveResource, async (req, res) => {
 });
 
 // ---------- Páginas do painel + assets (sem expor .env/server/db) ----------
-const PAGES = ['home', 'membros', 'financeiro', 'eventos', 'reunioes', 'tarefas', 'documentos', 'login'];
+const PAGES = ['home', 'membros', 'financeiro', 'eventos', 'reunioes', 'tarefas', 'documentos', 'noticias', 'login'];
 app.use('/css', express.static(path.join(ROOT, 'css')));
 app.use('/js', express.static(path.join(ROOT, 'js')));
 app.use('/assets', express.static(path.join(ROOT, 'assets')));
