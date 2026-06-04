@@ -36,6 +36,18 @@ const PUBLIC_MEMBRO_FIELDS = new Set(['id', 'nome', 'cargo', 'ativo', 'observaca
 app.use(cors());
 app.use(express.json({ limit: '25mb' }));
 
+// Garante o schema antes de qualquer rota (uma vez por instância — funciona em serverless)
+let _schemaReady = false;
+let _schemaPromise = null;
+app.use((req, res, next) => {
+  if (_schemaReady) return next();
+  if (!_schemaPromise) _schemaPromise = ensureSchema().then(() => { _schemaReady = true; });
+  _schemaPromise.then(next).catch((err) => {
+    console.error('[CA ERP API] falha ao preparar o schema:', err);
+    res.status(503).json({ error: 'banco indisponível na inicialização' });
+  });
+});
+
 // ---------- Helpers de conversão ----------
 function selectList(columns) {
   return columns
@@ -193,20 +205,24 @@ app.use('/assets', express.static(path.join(ROOT, 'assets')));
 app.get('/', (_req, res) => res.sendFile(path.join(ROOT, 'home.html')));
 PAGES.forEach((p) => app.get('/' + p + '.html', (_req, res) => res.sendFile(path.join(ROOT, p + '.html'))));
 
-// ---------- Boot: garante o schema e sobe ----------
+// ---------- Boot ----------
 async function ensureSchema() {
   const sql = fs.readFileSync(path.join(__dirname, 'schema.sql'), 'utf8');
   await pool.query(sql);
 }
 
-ensureSchema()
-  .then(() => {
-    app.listen(PORT, () => {
-      console.log(`[CA ERP API] ouvindo em http://localhost:${PORT}`);
-      console.log(`  painel: /  ·  login: /login.html  ·  autorizados: ${auth.ALLOWED_EMAILS.join(', ')}`);
+module.exports = app;
+
+if (require.main === module) {
+  ensureSchema()
+    .then(() => {
+      app.listen(PORT, () => {
+        console.log(`[CA ERP API] ouvindo em http://localhost:${PORT}`);
+        console.log(`  painel: /  ·  login: /login.html  ·  autorizados: ${auth.ALLOWED_EMAILS.join(', ')}`);
+      });
+    })
+    .catch((err) => {
+      console.error('[CA ERP API] falha ao preparar o schema:', err);
+      process.exit(1);
     });
-  })
-  .catch((err) => {
-    console.error('[CA ERP API] falha ao preparar o schema:', err);
-    process.exit(1);
-  });
+}

@@ -1,0 +1,9 @@
+ca-erp/
+db/
+docker-compose.yml
+Dockerfile
+server/Dockerfile
+server/.dockerignore
+render.yaml
+.env
+.env.example
